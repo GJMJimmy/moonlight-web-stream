@@ -1279,6 +1279,10 @@ canvas.video-stream {
     border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+.sidebar-stream-shortcuts[hidden] {
+    display: none;
+}
+
 .sidebar-stream-shortcuts-buttons {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
