@@ -35,10 +35,10 @@ pub fn start_spawner_thread(script: PathBuf) {
 fn ensure_agent_running(script: &Path) -> Result<bool, String> {
     let marker = marker_path(script);
 
-    if let Some(pid) = read_pid(&marker) {
-        if process_alive(pid) {
-            return Ok(true);
-        }
+    if let Some(pid) = read_pid(&marker)
+        && process_alive(pid)
+    {
+        return Ok(true);
     }
 
     kill_stray_agents();

@@ -248,10 +248,10 @@ async fn start(config: Config) -> Result<(), anyhow::Error> {
 
     // Keep the clipboard agent running in the active user session - the
     // server itself cannot touch the host clipboard from a service session.
-    if let Some(exe) = std::env::current_exe().ok() {
-        if let Some(dir) = exe.parent() {
-            crate::clipboard_agent::start_spawner_thread(dir.join("clipboard-agent.ps1"));
-        }
+    if let Ok(exe) = std::env::current_exe()
+        && let Some(dir) = exe.parent()
+    {
+        crate::clipboard_agent::start_spawner_thread(dir.join("clipboard-agent.ps1"));
     }
 
     let bind_address = app.config().web_server.bind_address;
