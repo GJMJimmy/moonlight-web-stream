@@ -1283,6 +1283,14 @@ canvas.video-stream {
     display: none;
 }
 
+.sidebar-stream-shortcuts-addrow {
+    display: flex;
+}
+
+.sidebar-stream-shortcuts-addrow button {
+    width: 100%;
+}
+
 .sidebar-stream-shortcuts-buttons {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

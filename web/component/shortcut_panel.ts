@@ -139,6 +139,7 @@ export class ShortcutPanel implements Component {
     private div = document.createElement("div")
     private modifierDiv = document.createElement("div")
     private customDiv = document.createElement("div")
+    private addDiv = document.createElement("div")
 
     private visible = false
     private activeModifiers = new Map<string, ModifierDefinition>()
@@ -151,7 +152,11 @@ export class ShortcutPanel implements Component {
         this.div.appendChild(this.modifierDiv)
 
         this.customDiv.classList.add("sidebar-stream-shortcuts-buttons")
+        this.customDiv.classList.add("sidebar-stream-shortcuts-custom")
         this.div.appendChild(this.customDiv)
+
+        this.addDiv.classList.add("sidebar-stream-shortcuts-addrow")
+        this.div.appendChild(this.addDiv)
 
         for (const def of MODIFIER_DEFINITIONS) {
             const button = document.createElement("button")
@@ -161,6 +166,35 @@ export class ShortcutPanel implements Component {
             })
             this.modifierDiv.appendChild(button)
         }
+
+        const tabButton = document.createElement("button")
+        tabButton.innerText = "Tab"
+        tabButton.addEventListener("click", () => {
+            this.tapKey(StreamKeys.VK_TAB)
+        })
+        this.customDiv.appendChild(tabButton)
+
+        const i = getTranslations(getCurrentLanguage()).stream
+
+        const addButton = document.createElement("button")
+        addButton.innerText = i.addShortcut
+        addButton.addEventListener("click", async () => {
+            const result = await showModal(new AddShortcutModal())
+            if (result == null) {
+                return
+            }
+
+            const list = loadShortcuts()
+            const existing = list.findIndex(x => x.name == result.name)
+            if (existing != -1) {
+                list[existing] = result
+            } else {
+                list.push(result)
+            }
+            saveShortcuts(list)
+            this.refresh()
+        })
+        this.addDiv.appendChild(addButton)
 
         this.refresh()
 
@@ -191,16 +225,14 @@ export class ShortcutPanel implements Component {
         parent.removeChild(this.div)
     }
 
+    // Rebuilds the custom shortcut buttons (in the order they were added).
+    // The Tab button is the first child and stays in place.
     private refresh(): void {
         const i = getTranslations(getCurrentLanguage()).stream
-        this.customDiv.replaceChildren()
 
-        const tabButton = document.createElement("button")
-        tabButton.innerText = "Tab"
-        tabButton.addEventListener("click", () => {
-            this.tapKey(StreamKeys.VK_TAB)
-        })
-        this.customDiv.appendChild(tabButton)
+        while (this.customDiv.children.length > 1) {
+            this.customDiv.removeChild(this.customDiv.lastChild!)
+        }
 
         for (const shortcut of loadShortcuts()) {
             const button = document.createElement("button")
@@ -223,26 +255,6 @@ export class ShortcutPanel implements Component {
             })
             this.customDiv.appendChild(button)
         }
-
-        const addButton = document.createElement("button")
-        addButton.innerText = i.addShortcut
-        addButton.addEventListener("click", async () => {
-            const result = await showModal(new AddShortcutModal())
-            if (result == null) {
-                return
-            }
-
-            const list = loadShortcuts()
-            const existing = list.findIndex(x => x.name == result.name)
-            if (existing != -1) {
-                list[existing] = result
-            } else {
-                list.push(result)
-            }
-            saveShortcuts(list)
-            this.refresh()
-        })
-        this.customDiv.appendChild(addButton)
     }
 
     private toggleModifier(def: ModifierDefinition, button: HTMLButtonElement): void {
