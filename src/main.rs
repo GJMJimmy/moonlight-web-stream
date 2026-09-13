@@ -39,6 +39,7 @@ use crate::{
 
 mod api;
 mod app;
+mod clipboard_agent;
 mod web;
 
 mod cli;
@@ -244,6 +245,14 @@ async fn start(config: Config) -> Result<(), anyhow::Error> {
     let app = App::new(config.clone()).await?;
     let app = Data::new(app);
     let clipboard_state = Data::new(ClipboardState::default());
+
+    // Keep the clipboard agent running in the active user session - the
+    // server itself cannot touch the host clipboard from a service session.
+    if let Some(exe) = std::env::current_exe().ok() {
+        if let Some(dir) = exe.parent() {
+            crate::clipboard_agent::start_spawner_thread(dir.join("clipboard-agent.ps1"));
+        }
+    }
 
     let bind_address = app.config().web_server.bind_address;
     let server = HttpServer::new({
