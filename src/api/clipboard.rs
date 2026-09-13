@@ -1,9 +1,9 @@
 use std::sync::{
-    atomic::{AtomicU64, Ordering},
     Mutex,
+    atomic::{AtomicU64, Ordering},
 };
 
-use actix_web::{get, post, web, HttpRequest, HttpResponse};
+use actix_web::{HttpRequest, HttpResponse, get, post, web};
 use serde::Serialize;
 
 use crate::app::user::AuthenticatedUser;
@@ -36,7 +36,9 @@ struct ClipboardText {
 }
 
 fn is_loopback(req: &HttpRequest) -> bool {
-    req.peer_addr().map(|addr| addr.ip().is_loopback()).unwrap_or(false)
+    req.peer_addr()
+        .map(|addr| addr.ip().is_loopback())
+        .unwrap_or(false)
 }
 
 /// The agent takes the text the web client wants on the host clipboard.
@@ -69,7 +71,10 @@ pub async fn agent_push(
     let text = String::from_utf8_lossy(&body).to_string();
 
     {
-        let mut latest = state.latest_from_host.lock().unwrap_or_else(|err| err.into_inner());
+        let mut latest = state
+            .latest_from_host
+            .lock()
+            .unwrap_or_else(|err| err.into_inner());
         *latest = text;
     }
     state.seq.fetch_add(1, Ordering::Relaxed);
@@ -84,7 +89,10 @@ pub async fn get_clipboard(
     _user: AuthenticatedUser,
 ) -> HttpResponse {
     let (text, seq) = {
-        let latest = state.latest_from_host.lock().unwrap_or_else(|err| err.into_inner());
+        let latest = state
+            .latest_from_host
+            .lock()
+            .unwrap_or_else(|err| err.into_inner());
         (latest.clone(), state.seq.load(Ordering::Relaxed))
     };
 
@@ -99,7 +107,10 @@ pub async fn post_clipboard(
     payload: web::Json<ClipboardText>,
 ) -> HttpResponse {
     {
-        let mut pending = state.pending_to_host.lock().unwrap_or_else(|err| err.into_inner());
+        let mut pending = state
+            .pending_to_host
+            .lock()
+            .unwrap_or_else(|err| err.into_inner());
         *pending = Some(payload.text.clone());
     }
 
