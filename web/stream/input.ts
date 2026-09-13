@@ -896,8 +896,10 @@ export class StreamInput {
             x,
             y,
             pressureOrDistance: touch.force,
-            contactAreaMajor: touch.radiusX,
-            contactAreaMinor: touch.radiusY,
+            // Normalized device coordinates (0..1) - see Limelight.h. Android
+            // reports radiusX/Y in page CSS pixels, so normalize by the video rect.
+            contactAreaMajor: touch.radiusX / rect.width,
+            contactAreaMinor: touch.radiusY / rect.height,
         }))
     }
 
