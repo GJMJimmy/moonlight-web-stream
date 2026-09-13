@@ -13,18 +13,20 @@ use std::time::Duration;
 use tracing::{info, warn};
 
 pub fn start_spawner_thread(script: PathBuf) {
-    std::thread::spawn(move || loop {
-        match ensure_agent_running(&script) {
-            Ok(true) => { /* already running */ }
-            Ok(false) => {
-                info!("[clipboard-agent] spawned into user session");
+    std::thread::spawn(move || {
+        loop {
+            match ensure_agent_running(&script) {
+                Ok(true) => { /* already running */ }
+                Ok(false) => {
+                    info!("[clipboard-agent] spawned into user session");
+                }
+                Err(err) => {
+                    warn!("[clipboard-agent] not spawned yet: {err}");
+                }
             }
-            Err(err) => {
-                warn!("[clipboard-agent] not spawned yet: {err}");
-            }
-        }
 
-        std::thread::sleep(Duration::from_secs(60));
+            std::thread::sleep(Duration::from_secs(60));
+        }
     });
 }
 
@@ -181,7 +183,9 @@ fn spawn_into_user_session(script: &Path) -> Result<u32, String> {
     } else {
         let mut token: isize = 0;
         if unsafe { WTSQueryUserToken(console_session, &mut token) } == 0 {
-            return Err("WTSQueryUserToken failed - is a user logged in on the console?".to_string());
+            return Err(
+                "WTSQueryUserToken failed - is a user logged in on the console?".to_string(),
+            );
         }
         token
     };
