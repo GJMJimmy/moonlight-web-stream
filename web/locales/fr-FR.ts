@@ -42,6 +42,7 @@ export const frFr: Translations = {
         shortcutKey: "Touche",
         deleteShortcut: "Supprimer",
         clipboard: "Presse-papiers",
+        clipboardSyncHint: "Cette zone est le presse-papiers de l'hôte - synchronisation automatique. Modifiez-la pour le changer.",
         clipboardHostToDevice: "Presse-papiers de l'hôte (synchronisé)",
         clipboardCopy: "Copier sur l'appareil",
         clipboardCopied: "Copié dans le presse-papiers de l'appareil",

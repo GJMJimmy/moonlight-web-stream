@@ -40,6 +40,7 @@ export const en = {
         shortcutKey: "Key",
         deleteShortcut: "Delete",
         clipboard: "Clipboard",
+        clipboardSyncHint: "This box is the host clipboard - it auto-syncs. Edit it to change the host clipboard.",
         clipboardHostToDevice: "Host clipboard (auto synced)",
         clipboardCopy: "Copy to device",
         clipboardCopied: "Copied to the device clipboard",

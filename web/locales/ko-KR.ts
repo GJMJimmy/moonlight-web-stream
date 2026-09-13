@@ -42,6 +42,7 @@ export const koKR: Translations = {
         shortcutKey: "키",
         deleteShortcut: "삭제",
         clipboard: "클립보드",
+        clipboardSyncHint: "이 입력 상자는 호스트 클립보드입니다 - 자동 동기화됩니다. 수정하면 호스트 클립보드가 변경됩니다.",
         clipboardHostToDevice: "호스트 클립보드 (자동 동기화)",
         clipboardCopy: "기기로 복사",
         clipboardCopied: "기기 클립보드에 복사되었습니다",

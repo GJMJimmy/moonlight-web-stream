@@ -42,6 +42,7 @@ export const zhCN: Translations = {
         shortcutKey: "按键",
         deleteShortcut: "删除",
         clipboard: "剪贴板",
+        clipboardSyncHint: "此输入框即主机剪贴板，自动同步；修改内容即可更改主机剪贴板。",
         clipboardHostToDevice: "主机剪贴板（自动同步）",
         clipboardCopy: "复制到设备",
         clipboardCopied: "已复制到设备剪贴板",

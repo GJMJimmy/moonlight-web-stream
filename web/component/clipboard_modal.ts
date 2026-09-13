@@ -7,96 +7,65 @@ import { buildUrl } from "../config_.js"
 export class ClipboardModal implements Component, Modal<void> {
 
     private root = document.createElement("div")
-
-    private hostLabel = document.createElement("p")
-    private hostText = document.createElement("textarea")
-    private copyButton = document.createElement("button")
-
-    private sendLabel = document.createElement("p")
-    private sendText = document.createElement("textarea")
-    private sendButton = document.createElement("button")
-
+    private hint = document.createElement("p")
+    private textarea = document.createElement("textarea")
     private closeButton = document.createElement("button")
 
+    private visible = false
     private lastSeq = -1
+    private applyingRemote = false
+    private sendTimer: number | null = null
 
     constructor() {
         const i = getTranslations(getCurrentLanguage()).stream
 
         this.root.classList.add("modal-clipboard")
 
-        this.hostLabel.innerText = i.clipboardHostToDevice
-        this.root.appendChild(this.hostLabel)
+        this.hint.innerText = i.clipboardSyncHint
+        this.root.appendChild(this.hint)
 
-        this.hostText.classList.add("textlike")
-        this.hostText.readOnly = true
-        this.root.appendChild(this.hostText)
+        this.textarea.addEventListener("input", this.onInput.bind(this))
+        this.root.appendChild(this.textarea)
 
-        this.copyButton.innerText = i.clipboardCopy
-        this.copyButton.addEventListener("click", this.onCopy.bind(this))
-        this.root.appendChild(this.copyButton)
-
-        this.sendLabel.innerText = i.clipboardDeviceToHost
-        this.root.appendChild(this.sendLabel)
-
-        this.sendText.classList.add("textlike")
-        this.root.appendChild(this.sendText)
-
-        this.sendButton.innerText = i.clipboardSend
-        this.sendButton.addEventListener("click", this.onSend.bind(this))
-        this.root.appendChild(this.sendButton)
-
-        this.closeButton.innerText = i.close
-        this.closeButton.addEventListener("click", () => {
+        const closeButton = document.createElement("button")
+        closeButton.innerText = i.close
+        closeButton.addEventListener("click", () => {
             void showModal(null)
         })
-        this.root.appendChild(this.closeButton)
+        this.root.appendChild(closeButton)
     }
 
-    private async onCopy(): Promise<void> {
-        const text = this.hostText.value
-        if (!text) {
+    // The textarea mirrors the host clipboard. Local edits are pushed to the
+    // host (debounced); incoming host changes overwrite the textarea.
+    private onInput(): void {
+        if (this.applyingRemote) {
             return
         }
 
-        try {
-            await navigator.clipboard.writeText(text)
-            showNotification(I18N().clipboardCopied, "info")
-        } catch (e) {
-            // Clipboard API needs a secure context - fall back to selecting the
-            // text and using execCommand, otherwise the user copies manually.
-            this.hostText.focus()
-            this.hostText.select()
-            let copied = false
+        if (this.sendTimer != null) {
+            clearTimeout(this.sendTimer)
+        }
+
+        const text = this.textarea.value
+        this.sendTimer = window.setTimeout(async () => {
+            this.sendTimer = null
+
             try {
-                copied = document.execCommand("copy")
-            } catch (e2) { }
-            showNotification(copied ? I18N().clipboardCopied : I18N().clipboardCopyHint, copied ? "info" : "warn")
-        }
-    }
+                const res = await fetch(buildUrl("/api/clipboard"), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text }),
+                })
 
-    private async onSend(): Promise<void> {
-        const text = this.sendText.value
-        if (!text) {
-            return
-        }
+                if (!res.ok) {
+                    throw String(res.status)
+                }
 
-        try {
-            const res = await fetch(buildUrl("/api/clipboard"), {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text }),
-            })
-
-            if (!res.ok) {
-                throw String(res.status)
+                showNotification(I18N().clipboardSent, "info")
+            } catch (e) {
+                showNotification(I18N().clipboardSendFailed, "error", e)
             }
-
-            this.sendText.value = ""
-            showNotification(I18N().clipboardSent, "info")
-        } catch (e) {
-            showNotification(I18N().clipboardSendFailed, "error", e)
-        }
+        }, 600)
     }
 
     private async pollLoop(signal: AbortSignal): Promise<void> {
@@ -108,12 +77,13 @@ export class ClipboardModal implements Component, Modal<void> {
                     const data = await res.json()
 
                     if (typeof data.seq == "number" && data.seq != this.lastSeq) {
-                        const firstUpdate = this.lastSeq == -1
                         this.lastSeq = data.seq
-                        this.hostText.value = data.text ?? ""
 
-                        if (!firstUpdate && data.text) {
-                            showNotification(I18N().clipboardUpdated, "info")
+                        // Don't clobber text the user is currently typing
+                        if (this.sendTimer == null) {
+                            this.applyingRemote = true
+                            this.textarea.value = data.text ?? ""
+                            this.applyingRemote = false
                         }
                     }
                 }
@@ -124,6 +94,7 @@ export class ClipboardModal implements Component, Modal<void> {
     }
 
     onFinish(signal: AbortSignal): Promise<void> {
+        this.visible = true
         void this.pollLoop(signal)
 
         return new Promise(resolve => {
@@ -136,6 +107,13 @@ export class ClipboardModal implements Component, Modal<void> {
     }
     unmount(parent: HTMLElement): void {
         parent.removeChild(this.root)
+
+        // Flush a pending edit when the modal closes
+        if (this.sendTimer != null) {
+            clearTimeout(this.sendTimer)
+            this.onInput()
+        }
+        this.visible = false
     }
 }
 

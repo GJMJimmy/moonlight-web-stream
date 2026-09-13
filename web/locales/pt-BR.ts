@@ -42,6 +42,7 @@ export const ptBR: Translations = {
         shortcutKey: "Tecla",
         deleteShortcut: "Excluir",
         clipboard: "Área de transferência",
+        clipboardSyncHint: "Esta caixa é a área de transferência do host - sincroniza automaticamente. Edite para alterá-la.",
         clipboardHostToDevice: "Área de transferência do host (sincronizada)",
         clipboardCopy: "Copiar para o dispositivo",
         clipboardCopied: "Copiado para a área de transferência do dispositivo",
