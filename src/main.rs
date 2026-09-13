@@ -257,7 +257,7 @@ async fn start(config: Config) -> Result<(), anyhow::Error> {
                 .service(
                     scope(&url_path_prefix)
                         .app_data(app.clone())
-                        .app_data(clipboard_state)
+                        .app_data(clipboard_state.clone())
                         .wrap(
                             middleware::DefaultHeaders::new()
                                 .add((

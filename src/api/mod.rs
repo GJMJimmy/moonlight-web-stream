@@ -8,7 +8,7 @@ use actix_web::{
 use crate::api::{
     app::{get_app_image, get_apps},
     auth::auth_middleware,
-    clipboard::{agent_poll, agent_push, get_clipboard, post_clipboard},
+    clipboard::{get_clipboard, post_clipboard},
     host::{delete_host, get_host, list_hosts, pair_host, patch_host, post_host, wake_host},
     role::{add_role, delete_role, get_role, list_roles, patch_role},
     settings::{get_default_settings, get_permissions},
