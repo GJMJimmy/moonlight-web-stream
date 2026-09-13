@@ -8,6 +8,7 @@ use actix_web::{
 use crate::api::{
     app::{get_app_image, get_apps},
     auth::auth_middleware,
+    clipboard::{agent_poll, agent_push, get_clipboard, post_clipboard},
     host::{delete_host, get_host, list_hosts, pair_host, patch_host, post_host, wake_host},
     role::{add_role, delete_role, get_role, list_roles, patch_role},
     settings::{get_default_settings, get_permissions},
@@ -16,6 +17,7 @@ use crate::api::{
 
 pub mod app;
 pub mod auth;
+pub mod clipboard;
 pub mod host;
 pub mod role;
 pub mod settings;
@@ -32,6 +34,11 @@ pub fn api_service() -> impl HttpServiceFactory {
             auth::login,
             auth::logout,
             auth::authenticate
+        ])
+        .service(services![
+            // -- Clipboard agent (loopback only, enforced in the handlers)
+            clipboard::agent_poll,
+            clipboard::agent_push
         ])
         .service(services![
             // -- Host
@@ -68,6 +75,11 @@ pub fn api_service() -> impl HttpServiceFactory {
             // -- Settings
             get_default_settings,
             get_permissions
+        ])
+        .service(services![
+            // -- Clipboard
+            get_clipboard,
+            post_clipboard
         ])
         .service(services![
             // -- Stream

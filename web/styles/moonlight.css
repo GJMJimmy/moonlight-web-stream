@@ -900,6 +900,24 @@ canvas.video-stream {
     grid-template-columns: repeat(4, 1fr);
 }
 
+.modal-clipboard {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: min(520px, 86vw);
+}
+
+.modal-clipboard p {
+    margin: 0;
+}
+
+.modal-clipboard textarea {
+    width: 100%;
+    min-height: 90px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
 .sidebar-stream-shortcuts-buttons {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

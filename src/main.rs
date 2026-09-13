@@ -30,6 +30,7 @@ use tracing::{error, info, trace};
 
 use crate::{
     api::api_service,
+    api::clipboard::ClipboardState,
     app::App,
     cli::{Cli, Command},
     human_json::preprocess_human_json,
@@ -242,11 +243,13 @@ impl RootSpanBuilder for ActixDebugSpan {
 async fn start(config: Config) -> Result<(), anyhow::Error> {
     let app = App::new(config.clone()).await?;
     let app = Data::new(app);
+    let clipboard_state = Data::new(ClipboardState::default());
 
     let bind_address = app.config().web_server.bind_address;
     let server = HttpServer::new({
         let url_path_prefix = config.web_server.url_path_prefix.clone();
         let app = app.clone();
+        let clipboard_state = clipboard_state.clone();
 
         move || {
             ActixApp::new()
@@ -254,6 +257,7 @@ async fn start(config: Config) -> Result<(), anyhow::Error> {
                 .service(
                     scope(&url_path_prefix)
                         .app_data(app.clone())
+                        .app_data(clipboard_state)
                         .wrap(
                             middleware::DefaultHeaders::new()
                                 .add((

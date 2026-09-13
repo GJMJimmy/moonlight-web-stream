@@ -12,6 +12,7 @@ import { DetailedRole, LogMessageType, StreamCapabilities, StreamKeys, StreamPer
 import { KeyboardModeEvent, KeyboardModeWillChangeEvent, ScreenKeyboard, TextEvent } from "./screen_keyboard.js";
 import { FormModal } from "./component/modal/form.js";
 import { ShortcutPanel } from "./component/shortcut_panel.js";
+import { ClipboardModal } from "./component/clipboard_modal.js";
 import { streamStatsToText } from "./stream/stats.js";
 import { adoptRoleDefaultLanguage, getCurrentLanguage, getTranslations } from "./i18n.js";
 import { requestKeyboardLock } from "./iframe.js";
@@ -967,6 +968,9 @@ class ViewerSidebar implements Component, Sidebar {
     private shortcutsButton = document.createElement("button")
     private shortcutPanel = new ShortcutPanel(() => this.app.getStream()?.getInput() ?? null)
 
+    private clipboardButton = document.createElement("button")
+    private clipboardModal = new ClipboardModal()
+
     private mouseMode: SelectComponent
     private touchMode: SelectComponent
 
@@ -1076,6 +1080,13 @@ class ViewerSidebar implements Component, Sidebar {
         })
         this.buttonDiv.appendChild(this.shortcutsButton)
         this.shortcutPanel.mount(this.div)
+
+        // Clipboard
+        this.clipboardButton.innerText = I.stream.clipboard
+        this.clipboardButton.addEventListener("click", () => {
+            void showModal(this.clipboardModal)
+        })
+        this.buttonDiv.appendChild(this.clipboardButton)
 
         // Select Mouse Mode
         this.mouseMode = new SelectComponent("mouseMode", [
