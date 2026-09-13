@@ -56,6 +56,7 @@ export class AudioElementPlayer implements TrackAudioPlayer {
 
     onUserInteraction(): void {
         this.audioElement.muted = false
+        this.audioElement.play().catch(() => {})
     }
 
     mount(parent: HTMLElement): void {

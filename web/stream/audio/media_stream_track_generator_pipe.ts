@@ -3,6 +3,15 @@ import { Pipe, PipeInfo } from "../pipeline/index"
 import { addPipePassthrough } from "../pipeline/pipes"
 import { SampleAudioPlayer, TrackAudioPlayer } from "./index"
 
+// The audio MediaStreamTrackGenerator (breakout box) exists but produces silence
+// on chromium 94-102 (fixed ~M103). Gate it off there so the app falls back to
+// the libopus -> AudioContext pipeline.
+function generatorAudioBroken(): boolean {
+    const match = navigator.userAgent.match(/Chrome\/(\d+)\./)
+    const major = match ? parseInt(match[1]) : NaN
+    return !isNaN(major) && major >= 94 && major < 103
+}
+
 export class AudioMediaStreamTrackGeneratorPipe implements SampleAudioPlayer {
     static readonly pipeName = "AudioMediaStreamTrackGeneratorPipe"
 
@@ -11,7 +20,7 @@ export class AudioMediaStreamTrackGeneratorPipe implements SampleAudioPlayer {
 
     static async getInfo(): Promise<PipeInfo> {
         return {
-            environmentSupported: "MediaStreamTrackGenerator" in globalObject()
+            environmentSupported: "MediaStreamTrackGenerator" in globalObject() && !generatorAudioBroken()
         }
     }
 

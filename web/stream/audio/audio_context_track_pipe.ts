@@ -4,12 +4,21 @@ import { PipeInfo } from "../pipeline/index"
 import { AudioContextBasePipe } from "./audio_context_base"
 import { AudioPlayerSetup, TrackAudioPlayer } from "./index"
 
+// On chromium 94-102 the audio element / MediaStream paths are unreliable on
+// Android (media gesture policy + silent generator). Prefer the direct
+// AudioContext destination pipeline there.
+function elementAudioPathUnreliable(): boolean {
+    const match = navigator.userAgent.match(/Chrome\/(\d+)\./)
+    const major = match ? parseInt(match[1]) : NaN
+    return !isNaN(major) && major >= 94 && major < 103
+}
+
 export class AudioContextTrackPipe extends AudioContextBasePipe {
     static readonly pipeName = "AudioContextTrackPipe"
 
     static async getInfo(): Promise<PipeInfo> {
         return {
-            environmentSupported: "AudioContext" in globalObject() && "createMediaStreamSource" in AudioContext.prototype
+            environmentSupported: "AudioContext" in globalObject() && "createMediaStreamSource" in AudioContext.prototype && !elementAudioPathUnreliable()
         }
     }
 
