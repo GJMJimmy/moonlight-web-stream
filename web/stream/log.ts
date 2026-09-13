@@ -8,6 +8,8 @@ export type LogListener = (fullRawText: string, type: LogMessageType | null) => 
 
 export class Logger {
 
+    static __consoleHooked = false
+
     constructor() { }
 
     debug(message: string, info?: LogMessageInfo) {
@@ -39,8 +41,8 @@ export class Logger {
                 enabled = location.search.indexOf("debug=1") != -1 || localStorage.getItem("__dbglog") == "1"
             } catch (e) { }
             if (!enabled) return
-            if (!Logger["__consoleHooked"]) {
-                Logger["__consoleHooked"] = true
+            if (!Logger.__consoleHooked) {
+                Logger.__consoleHooked = true
                 for (const level of ["error", "warn"] as const) {
                     const original = console[level].bind(console)
                     console[level] = (...args: Array<any>) => {
@@ -60,7 +62,7 @@ export class Logger {
             const line = document.createElement("div")
             line.textContent = message
             el.appendChild(line)
-            while (el.childNodes.length > 80) el.removeChild(el.firstChild)
+            while (el.childNodes.length > 80 && el.firstChild) el.removeChild(el.firstChild)
             el.scrollTop = el.scrollHeight
         } catch (e) { }
     }
