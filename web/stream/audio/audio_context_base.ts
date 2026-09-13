@@ -50,6 +50,7 @@ export abstract class AudioContextBasePipe implements NodeAudioPlayer {
     }
 
     onUserInteraction(): void {
+        this.audioContext?.resume().catch(() => {})
         if (this.base && "onUserInteraction" in this.base && typeof this.base.onUserInteraction == "function") {
             return this.base.onUserInteraction(...arguments)
         }
