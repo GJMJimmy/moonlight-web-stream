@@ -36,6 +36,11 @@ export const frFr: Translations = {
         touch: "Tactiel",
         localCursor: "Curseur local",
         selectKeycode: "Selection du code clé",
+        shortcuts: "Raccourcis",
+        addShortcut: "Ajouter",
+        shortcutName: "Nom",
+        shortcutKey: "Touche",
+        deleteShortcut: "Supprimer",
         rootNotFound: "Elément racine introuvable",
     },
     settings: {

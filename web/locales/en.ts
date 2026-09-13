@@ -34,6 +34,11 @@ export const en = {
         touch: "Touch",
         localCursor: "Local Cursor",
         selectKeycode: "Select Keycode",
+        shortcuts: "Shortcuts",
+        addShortcut: "Add",
+        shortcutName: "Name",
+        shortcutKey: "Key",
+        deleteShortcut: "Delete",
         rootNotFound: "couldn't find root element",
     },
     settings: {

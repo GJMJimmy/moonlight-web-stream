@@ -36,6 +36,11 @@ export const ptBR: Translations = {
         touch: "Toque",
         localCursor: "Cursor Local",
         selectKeycode: "Selecionar Código de Tecla",
+        shortcuts: "Atalhos",
+        addShortcut: "Adicionar",
+        shortcutName: "Nome",
+        shortcutKey: "Tecla",
+        deleteShortcut: "Excluir",
         rootNotFound: "elemento raiz não encontrado",
     },
     settings: {

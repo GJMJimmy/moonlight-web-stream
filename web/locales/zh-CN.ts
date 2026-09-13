@@ -36,6 +36,11 @@ export const zhCN: Translations = {
         touch: "触摸",
         localCursor: "本地光标",
         selectKeycode: "选择按键码",
+        shortcuts: "快捷键",
+        addShortcut: "添加",
+        shortcutName: "名称",
+        shortcutKey: "按键",
+        deleteShortcut: "删除",
         rootNotFound: "找不到根元素",
     },
     settings: {

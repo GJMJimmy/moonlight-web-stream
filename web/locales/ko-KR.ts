@@ -36,6 +36,11 @@ export const koKR: Translations = {
         touch: "터치",
         localCursor: "로컬 커서",
         selectKeycode: "키코드 선택",
+        shortcuts: "단축키",
+        addShortcut: "추가",
+        shortcutName: "이름",
+        shortcutKey: "키",
+        deleteShortcut: "삭제",
         rootNotFound: "루트 요소를 찾을 수 없습니다.",
     },
     settings: {

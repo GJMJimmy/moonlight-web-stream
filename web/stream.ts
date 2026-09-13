@@ -11,6 +11,7 @@ import { SelectComponent } from "./component/input.js";
 import { DetailedRole, LogMessageType, StreamCapabilities, StreamKeys, StreamPermissions } from "./api_bindings.js";
 import { KeyboardModeEvent, KeyboardModeWillChangeEvent, ScreenKeyboard, TextEvent } from "./screen_keyboard.js";
 import { FormModal } from "./component/modal/form.js";
+import { ShortcutPanel } from "./component/shortcut_panel.js";
 import { streamStatsToText } from "./stream/stats.js";
 import { adoptRoleDefaultLanguage, getCurrentLanguage, getTranslations } from "./i18n.js";
 import { requestKeyboardLock } from "./iframe.js";
@@ -963,6 +964,9 @@ class ViewerSidebar implements Component, Sidebar {
     private statsButton = document.createElement("button")
     private exitStreamButton = document.createElement("button")
 
+    private shortcutsButton = document.createElement("button")
+    private shortcutPanel = new ShortcutPanel(() => this.app.getStream()?.getInput() ?? null)
+
     private mouseMode: SelectComponent
     private touchMode: SelectComponent
 
@@ -1063,6 +1067,15 @@ class ViewerSidebar implements Component, Sidebar {
 
         })
         this.buttonDiv.appendChild(this.exitStreamButton)
+
+        // Shortcuts
+        this.shortcutsButton.innerText = I.stream.shortcuts
+        this.shortcutsButton.addEventListener("click", () => {
+            const shown = this.shortcutPanel.toggle()
+            this.shortcutsButton.classList.toggle("shortcut-active", shown)
+        })
+        this.buttonDiv.appendChild(this.shortcutsButton)
+        this.shortcutPanel.mount(this.div)
 
         // Select Mouse Mode
         this.mouseMode = new SelectComponent("mouseMode", [

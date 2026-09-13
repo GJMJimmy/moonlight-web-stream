@@ -875,6 +875,24 @@ canvas.video-stream {
     grid-template-columns: 50% 50%;
 }
 
+
+.sidebar-stream-shortcuts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-stream-shortcuts-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+.sidebar-stream-shortcuts-buttons button.shortcut-active {
+    background: #3e6fb0;
+}
 .hiddeninput {
     position: absolute;
     z-index: -1000;
