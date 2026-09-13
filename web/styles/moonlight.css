@@ -896,6 +896,10 @@ canvas.video-stream {
     width: 100%;
 }
 
+.sidebar-stream-shortcuts-buttons.sidebar-stream-shortcuts-modifiers {
+    grid-template-columns: repeat(4, 1fr);
+}
+
 .sidebar-stream-shortcuts-buttons {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

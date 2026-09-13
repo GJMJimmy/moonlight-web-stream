@@ -149,6 +149,7 @@ export class ShortcutPanel implements Component {
         this.div.hidden = true
 
         this.modifierDiv.classList.add("sidebar-stream-shortcuts-buttons")
+        this.modifierDiv.classList.add("sidebar-stream-shortcuts-modifiers")
         this.div.appendChild(this.modifierDiv)
 
         this.customDiv.classList.add("sidebar-stream-shortcuts-buttons")
