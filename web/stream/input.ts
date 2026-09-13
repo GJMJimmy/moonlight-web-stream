@@ -969,8 +969,13 @@ export class StreamInput {
 
         this.buffer.putF32(touch.force)
 
-        this.buffer.putF32(touch.radiusX)
-        this.buffer.putF32(touch.radiusY)
+        // The protocol expects the contact ellipse axes in normalized device
+        // coordinates (0..1 of the video area). Android reports radiusX/Y in
+        // page CSS pixels - sending them raw produced a gigantic contact area
+        // on the host, causing chromium tap-target adjustment to click
+        // different elements (e.g. closing a tab instead of switching).
+        this.buffer.putF32(touch.radiusX / rect.width)
+        this.buffer.putF32(touch.radiusY / rect.height)
         this.buffer.putU16(touch.rotationAngle)
 
         trySendChannel(this.touch, this.buffer)
