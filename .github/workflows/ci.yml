@@ -116,6 +116,7 @@ jobs:
           streamer${{ matrix.app-suffix }}
           web-server${{ matrix.app-suffix }}
           static
+          clipboard-agent.ps1
 
   create-release:
     name: Create GitHub Release
@@ -170,6 +171,7 @@ jobs:
           mv dist/streamer${{ matrix.suffix }} package/
           mv dist/web-server${{ matrix.suffix }} package/
           mv dist/static package/
+          cp dist/clipboard-agent.ps1 package/
 
           ARCHIVE="moonlight-web-${{ matrix.target }}"
 
