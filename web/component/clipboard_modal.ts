@@ -60,8 +60,6 @@ export class ClipboardModal implements Component, Modal<void> {
                 if (!res.ok) {
                     throw String(res.status)
                 }
-
-                showNotification(I18N().clipboardSent, "info")
             } catch (e) {
                 showNotification(I18N().clipboardSendFailed, "error", e)
             }
