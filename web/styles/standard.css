@@ -1308,6 +1308,7 @@ canvas.video-stream {
 
 .modal-clipboard textarea {
     width: 100%;
+    max-width: 100%;
     min-height: 200px;
     resize: vertical;
     box-sizing: border-box;
