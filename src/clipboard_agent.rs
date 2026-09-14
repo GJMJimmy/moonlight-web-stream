@@ -92,7 +92,7 @@ fn spawn_into_user_session(script: &Path) -> Result<u32, String> {
     use std::os::windows::ffi::OsStrExt;
 
     #[link(name = "kernel32")]
-    extern "system" {
+    unsafe extern "system" {
         fn WTSGetActiveConsoleSessionId() -> u32;
         fn CloseHandle(handle: isize) -> i32;
         fn ProcessIdToSessionId(process_id: u32, session_id: *mut u32) -> i32;
@@ -111,12 +111,12 @@ fn spawn_into_user_session(script: &Path) -> Result<u32, String> {
     }
 
     #[link(name = "wtsapi32")]
-    extern "system" {
+    unsafe extern "system" {
         fn WTSQueryUserToken(session_id: u32, token: *mut isize) -> i32;
     }
 
     #[link(name = "advapi32")]
-    extern "system" {
+    unsafe extern "system" {
         #[allow(clippy::too_many_arguments)]
         fn CreateProcessAsUserW(
             token: isize,
