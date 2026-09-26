@@ -1,6 +1,5 @@
 import { Component } from "./index.js"
 import { InputComponent, SelectComponent } from "./input.js"
-import { setContextMenu } from "./context_menu.js"
 import { FormModal } from "./modal/form.js"
 import { showModal } from "./modal/index.js"
 import { getCurrentLanguage, getTranslations } from "../i18n.js"
@@ -241,20 +240,50 @@ export class ShortcutPanel implements Component {
             button.addEventListener("click", () => {
                 this.sendCombo(shortcut)
             })
+            // Long-press (touch) / right click -> delete menu. The global
+            // context menu component lives in index.html and doesn't exist on
+            // the stream page, so this uses its own small popup.
             button.addEventListener("contextmenu", event => {
-                const i = getTranslations(getCurrentLanguage()).stream
+                event.preventDefault()
+                event.stopPropagation()
 
-                setContextMenu(event, {
-                    elements: [{
-                        name: i.deleteShortcut,
-                        callback: () => {
-                            saveShortcuts(loadShortcuts().filter(x => x.name != shortcut.name))
-                            this.refresh()
-                        }
-                    }]
-                })
+                this.showDeleteMenu(event as MouseEvent, shortcut)
             })
             this.customDiv.appendChild(button)
+        }
+    }
+
+    private showDeleteMenu(event: MouseEvent, shortcut: StoredShortcut): void {
+        const i = getTranslations(getCurrentLanguage()).stream
+
+        this.removeDeleteMenu()
+
+        const menu = document.createElement("div")
+        menu.classList.add("shortcut-delete-menu")
+
+        const deleteButton = document.createElement("button")
+        deleteButton.innerText = i.deleteShortcut
+        deleteButton.addEventListener("click", event => {
+            event.stopPropagation()
+
+            this.removeDeleteMenu()
+            saveShortcuts(loadShortcuts().filter(x => x.name != shortcut.name))
+            this.refresh()
+        })
+        menu.appendChild(deleteButton)
+
+        menu.style.left = `${event.clientX}px`
+        menu.style.top = `${event.clientY}px`
+        document.body.appendChild(menu)
+
+        const close = () => this.removeDeleteMenu()
+        window.addEventListener("click", close, { once: true })
+        window.addEventListener("contextmenu", close, { once: true })
+    }
+
+    private removeDeleteMenu(): void {
+        for (const menu of document.body.querySelectorAll(".shortcut-delete-menu")) {
+            menu.remove()
         }
     }
 

@@ -1428,3 +1428,18 @@ canvas.video-stream {
 .role-info-delete {
     background-color: red;
 }
+
+.shortcut-delete-menu {
+    position: fixed;
+    z-index: 2147483647;
+    background: rgb(40, 44, 52);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.shortcut-delete-menu button {
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+}
