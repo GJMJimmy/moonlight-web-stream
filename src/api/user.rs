@@ -128,7 +128,6 @@ pub async fn patch_user(
     Ok(HttpResponse::Ok().finish())
 }
 
-#[delete("/user")]
 #[get("/user/client_data")]
 pub async fn get_client_data(
     mut user: AuthenticatedUser,
@@ -148,6 +147,7 @@ pub async fn put_client_data(
     Ok(HttpResponse::Ok().finish())
 }
 
+#[delete("/user")]
 pub async fn delete_user(
     app: Data<App>,
     admin: Admin,
