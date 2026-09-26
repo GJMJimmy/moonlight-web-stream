@@ -1277,7 +1277,7 @@ canvas.video-stream {
     gap: 8px;
     padding: 8px;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
-    width: 260px;
+    width: 300px;
     box-sizing: border-box;
 }
 
@@ -1323,9 +1323,14 @@ canvas.video-stream {
 }
 
 .sidebar-stream-shortcuts-buttons button {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: break-word;
+    text-align: center;
+}
+
+.sidebar-stream-shortcuts-custom {
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
 }
 
 .sidebar-stream-shortcuts-buttons button.shortcut-active {
