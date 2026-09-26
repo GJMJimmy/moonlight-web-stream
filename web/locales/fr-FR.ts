@@ -46,6 +46,7 @@ export const frFr: Translations = {
         changeOrder: "Réordonner",
         orderDone: "Terminé",
         noShortcuts: "Aucun raccourci",
+        shortcutsSyncFailed: "Échec de la synchronisation des raccourcis - conservés localement",
         clipboard: "Presse-papiers",
         clipboardSyncHint: "Cette zone est le presse-papiers de l'hôte - synchronisation automatique. Modifiez-la pour le changer.",
         clipboardHostToDevice: "Presse-papiers de l'hôte (synchronisé)",

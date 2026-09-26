@@ -189,6 +189,7 @@ fn migrate_v2_to_v3(old: V2) -> V3 {
                             RoleType::Admin => ADMIN_ID,
                             RoleType::User => USER_ID,
                         },
+                        client_data: Default::default(),
                     },
                 )
             })
@@ -216,6 +217,9 @@ pub struct V3User {
     pub name: String,
     pub password: Option<V2UserPassword>,
     pub client_unique_id: String,
+    /// Opaque per-user blob for client-side data (e.g. keyboard shortcuts).
+    #[serde(default)]
+    pub client_data: serde_json::Value,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

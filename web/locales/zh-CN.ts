@@ -46,6 +46,7 @@ export const zhCN: Translations = {
         changeOrder: "改变顺序",
         orderDone: "完成",
         noShortcuts: "暂无快捷键",
+        shortcutsSyncFailed: "快捷键同步失败 - 已保留在本地",
         clipboard: "剪贴板",
         clipboardSyncHint: "此输入框即主机剪贴板，自动同步；修改内容即可更改主机剪贴板。",
         clipboardHostToDevice: "主机剪贴板（自动同步）",

@@ -259,6 +259,33 @@ impl AuthenticatedUser {
         Ok(())
     }
 
+    pub async fn client_data(&mut self) -> Result<serde_json::Value, AppError> {
+        let storage_user = self.storage_user().await?;
+
+        Ok(storage_user.client_data.clone())
+    }
+
+    pub async fn set_client_data(
+        &mut self,
+        client_data: serde_json::Value,
+    ) -> Result<(), AppError> {
+        let app = self.app.access()?;
+
+        self.cache_storage = None;
+
+        app.storage
+            .modify_user(
+                self.id,
+                StorageUserModify {
+                    client_data: Some(client_data),
+                    ..Default::default()
+                },
+            )
+            .await?;
+
+        Ok(())
+    }
+
     pub async fn new_session(&self, expiration: Duration) -> Result<SessionToken, AppError> {
         let app = self.app.access()?;
 

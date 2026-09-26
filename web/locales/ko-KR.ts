@@ -46,6 +46,7 @@ export const koKR: Translations = {
         changeOrder: "순서 변경",
         orderDone: "완료",
         noShortcuts: "단축키 없음",
+        shortcutsSyncFailed: "단축키 동기화 실패 - 로컬에 저장됨",
         clipboard: "클립보드",
         clipboardSyncHint: "이 입력 상자는 호스트 클립보드입니다 - 자동 동기화됩니다. 수정하면 호스트 클립보드가 변경됩니다.",
         clipboardHostToDevice: "호스트 클립보드 (자동 동기화)",

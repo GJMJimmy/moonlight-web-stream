@@ -1,5 +1,5 @@
 use actix_web::{
-    HttpResponse, delete, get, patch, post,
+    HttpResponse, delete, get, patch, post, put,
     web::{Data, Json, Query},
 };
 use common::api_bindings::{
@@ -97,6 +97,7 @@ pub async fn patch_user(
                         password: new_password.map(Some),
                         role_id: request.role_id.map(RoleId),
                         client_unique_id: request.client_unique_id,
+                        client_data: None,
                     },
                 )
                 .await?;
@@ -128,6 +129,25 @@ pub async fn patch_user(
 }
 
 #[delete("/user")]
+#[get("/user/client_data")]
+pub async fn get_client_data(
+    mut user: AuthenticatedUser,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let client_data = user.client_data().await?;
+
+    Ok(Json(client_data))
+}
+
+#[put("/user/client_data")]
+pub async fn put_client_data(
+    mut user: AuthenticatedUser,
+    Json(client_data): Json<serde_json::Value>,
+) -> Result<HttpResponse, AppError> {
+    user.set_client_data(client_data).await?;
+
+    Ok(HttpResponse::Ok().finish())
+}
+
 pub async fn delete_user(
     app: Data<App>,
     admin: Admin,

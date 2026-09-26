@@ -46,6 +46,7 @@ export const ptBR: Translations = {
         changeOrder: "Reordenar",
         orderDone: "Concluir",
         noShortcuts: "Nenhum atalho ainda",
+        shortcutsSyncFailed: "Falha ao sincronizar atalhos - mantidos localmente",
         clipboard: "Área de transferência",
         clipboardSyncHint: "Esta caixa é a área de transferência do host - sincroniza automaticamente. Edite para alterá-la.",
         clipboardHostToDevice: "Área de transferência do host (sincronizada)",

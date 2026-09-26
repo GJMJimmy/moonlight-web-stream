@@ -12,7 +12,9 @@ use crate::api::{
     host::{delete_host, get_host, list_hosts, pair_host, patch_host, post_host, wake_host},
     role::{add_role, delete_role, get_role, list_roles, patch_role},
     settings::{get_default_settings, get_permissions},
-    user::{add_user, delete_user, get_user, list_users, patch_user},
+    user::{
+        add_user, delete_user, get_client_data, get_user, list_users, patch_user, put_client_data,
+    },
 };
 
 pub mod app;
@@ -62,6 +64,8 @@ pub fn api_service() -> impl HttpServiceFactory {
             patch_user,
             delete_user,
             list_users,
+            get_client_data,
+            put_client_data
         ])
         .service(services![
             // -- Roles

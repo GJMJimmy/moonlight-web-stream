@@ -792,6 +792,9 @@ class ViewerApp implements Component {
     getStream(): Stream | null {
         return this.stream
     }
+    getApi(): Api {
+        return this.api
+    }
 }
 
 class ConnectionInfoModal implements Modal<void> {
@@ -966,7 +969,7 @@ class ViewerSidebar implements Component, Sidebar {
     private exitStreamButton = document.createElement("button")
 
     private shortcutsButton = document.createElement("button")
-    private shortcutPanel = new ShortcutPanel(() => this.app.getStream()?.getInput() ?? null)
+    private shortcutPanel = new ShortcutPanel(() => this.app.getStream()?.getInput() ?? null, () => this.app.getApi())
 
     private clipboardButton = document.createElement("button")
     private clipboardModal = new ClipboardModal()

@@ -44,6 +44,7 @@ export const en = {
         changeOrder: "Reorder",
         orderDone: "Done",
         noShortcuts: "No shortcuts yet",
+        shortcutsSyncFailed: "Failed to sync shortcuts - kept locally",
         clipboard: "Clipboard",
         clipboardSyncHint: "This box is the host clipboard - it auto-syncs. Edit it to change the host clipboard.",
         clipboardHostToDevice: "Host clipboard (auto synced)",

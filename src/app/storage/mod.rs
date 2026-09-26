@@ -44,6 +44,8 @@ pub struct StorageUser {
     pub password: Option<StoragePassword>,
     pub role_id: RoleId,
     pub client_unique_id: String,
+    /// Opaque per-user blob for client-side data (e.g. keyboard shortcuts).
+    pub client_data: serde_json::Value,
 }
 #[derive(Clone)]
 pub struct StorageUserAdd {
@@ -57,6 +59,7 @@ pub struct StorageUserModify {
     pub role_id: Option<RoleId>,
     pub password: Option<Option<StoragePassword>>,
     pub client_unique_id: Option<String>,
+    pub client_data: Option<serde_json::Value>,
 }
 
 // --- Roles ---

@@ -1,7 +1,9 @@
 import { Component } from "./index.js"
 import { InputComponent, SelectComponent } from "./input.js"
 import { Modal, showModal } from "./modal/index.js"
+import { showNotification } from "./notification.js"
 import { getCurrentLanguage, getTranslations } from "../i18n.js"
+import { Api, apiGetClientData, apiPutClientData } from "../api.js"
 import { StreamKeyModifiers, StreamKeys } from "../api_bindings.js"
 
 export type StoredShortcut = {
@@ -26,28 +28,97 @@ export const MODIFIER_DEFINITIONS: Array<ModifierDefinition> = [
 
 const STORAGE_KEY = "mlShortcuts"
 
-export function loadShortcuts(): Array<StoredShortcut> {
+// In-memory cache - the panel renders synchronously from this. The server
+// (per-user client_data) is the source of truth once it has answered once.
+let cachedShortcuts: Array<StoredShortcut> = []
+// False when the server could not serve client_data (old build without the
+// endpoint, or a network error) - saves then fall back to local storage.
+let serverAvailable = true
+
+function shortcutsFromRaw(raw: unknown): Array<StoredShortcut> {
+    if (!Array.isArray(raw)) {
+        return []
+    }
+
+    return raw.filter((x): x is StoredShortcut => x != null && typeof x.name == "string" && typeof x.key == "number" && typeof x.modifiers == "number")
+}
+
+function localShortcuts(): Array<StoredShortcut> {
     try {
         const raw = localStorage.getItem(STORAGE_KEY)
         if (raw == null) {
             return []
         }
 
-        const parsed = JSON.parse(raw)
-        if (!Array.isArray(parsed)) {
-            return []
-        }
-
-        return parsed.filter(x => x != null && typeof x.name == "string" && typeof x.key == "number" && typeof x.modifiers == "number")
+        return shortcutsFromRaw(JSON.parse(raw))
     } catch (e) {
         return []
     }
 }
 
-export function saveShortcuts(shortcuts: Array<StoredShortcut>) {
+function saveLocalShortcuts(shortcuts: Array<StoredShortcut>) {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(shortcuts))
     } catch (e) { }
+}
+
+// Synchronous cache read for rendering.
+export function loadShortcuts(): Array<StoredShortcut> {
+    return cachedShortcuts
+}
+
+// Loads the shortcuts for the logged-in user from the server. Migrates a
+// previous localStorage-only state once, and falls back to local storage
+// when the server cannot serve client data.
+export async function loadShortcutsAsync(api: Api): Promise<void> {
+    try {
+        const data = await apiGetClientData(api)
+        serverAvailable = true
+
+        const list = shortcutsFromRaw(data)
+
+        if (list.length > 0) {
+            // The server has data - it wins, drop any stale local copy
+            cachedShortcuts = list
+            localStorage.removeItem(STORAGE_KEY)
+            return
+        }
+
+        // One-time migration from a previous localStorage-only version
+        const local = localShortcuts()
+        if (local.length > 0) {
+            cachedShortcuts = local
+            await apiPutClientData(api, local)
+            localStorage.removeItem(STORAGE_KEY)
+            return
+        }
+
+        cachedShortcuts = []
+    } catch (e) {
+        // Old server build without the endpoint, or a network error:
+        // keep working from local storage like before
+        serverAvailable = false
+        cachedShortcuts = localShortcuts()
+    }
+}
+
+// Updates the in-memory cache immediately (the UI renders from it) and
+// persists to the server. Falls back to local storage on failure.
+export async function saveShortcutsAsync(api: Api, shortcuts: Array<StoredShortcut>): Promise<void> {
+    cachedShortcuts = shortcuts
+
+    if (!serverAvailable) {
+        saveLocalShortcuts(shortcuts)
+        return
+    }
+
+    try {
+        await apiPutClientData(api, shortcuts)
+        localStorage.removeItem(STORAGE_KEY)
+    } catch (e) {
+        saveLocalShortcuts(shortcuts)
+        showNotification(getTranslations(getCurrentLanguage()).stream.shortcutsSyncFailed, "error", e)
+    }
 }
 
 // Single modal with two views: a list of shortcuts (with reorder mode) and an
@@ -66,7 +137,7 @@ export class ManageShortcutsModal implements Component, Modal<void> {
 
     private reorderMode = false
 
-    constructor() {
+    constructor(private getApi: () => Api) {
         const i = getTranslations(getCurrentLanguage()).stream
 
         this.root.classList.add("modal-shortcut-manage")
@@ -157,7 +228,7 @@ export class ManageShortcutsModal implements Component, Modal<void> {
                 const del = document.createElement("button")
                 del.innerText = i.deleteShortcut
                 del.addEventListener("click", () => {
-                    saveShortcuts(loadShortcuts().filter(x => x.name != shortcut.name))
+                    void saveShortcutsAsync(this.getApi(), loadShortcuts().filter(x => x.name != shortcut.name))
                     this.renderList()
                 })
                 row.appendChild(del)
@@ -177,7 +248,7 @@ export class ManageShortcutsModal implements Component, Modal<void> {
 
         const [item] = list.splice(index, 1)
         list.splice(target, 0, item)
-        saveShortcuts(list)
+        void saveShortcutsAsync(this.getApi(), list)
 
         this.renderList()
     }
@@ -294,7 +365,7 @@ export class ManageShortcutsModal implements Component, Modal<void> {
             } else {
                 list.push(stored)
             }
-            saveShortcuts(list)
+            void saveShortcutsAsync(this.getApi(), list)
 
             this.showList()
         })

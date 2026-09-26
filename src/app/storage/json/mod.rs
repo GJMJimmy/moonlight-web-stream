@@ -296,6 +296,7 @@ fn user_from_json(user_id: UserId, user: &V3User) -> StorageUser {
         }),
         role_id: RoleId(user.role_id),
         client_unique_id: user.client_unique_id.clone(),
+        client_data: user.client_data.clone(),
     }
 }
 
@@ -488,6 +489,7 @@ impl Storage for JsonStorage {
                 iterations: password.iterations,
             }),
             client_unique_id: user.client_unique_id,
+            client_data: Default::default(),
         };
 
         {
@@ -526,6 +528,7 @@ impl Storage for JsonStorage {
             }),
             role_id: RoleId(user.role_id),
             client_unique_id: user.client_unique_id,
+            client_data: user.client_data,
         })
     }
     async fn modify_user(
@@ -550,6 +553,9 @@ impl Storage for JsonStorage {
         }
         if let Some(client_unique_id) = modify.client_unique_id {
             user.client_unique_id = client_unique_id;
+        }
+        if let Some(client_data) = modify.client_data {
+            user.client_data = client_data;
         }
 
         drop(user);

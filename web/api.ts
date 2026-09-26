@@ -341,6 +341,15 @@ export async function apiGetRole(api: Api, query: GetRoleQuery): Promise<GetRole
     })
     return response as GetRoleResponse
 }
+
+export async function apiGetClientData(api: Api): Promise<unknown> {
+    const response = await fetchApi(api, "/user/client_data", GET, { response: "json" })
+    return response
+}
+
+export async function apiPutClientData(api: Api, clientData: unknown): Promise<void> {
+    await fetchApi(api, "/user/client_data", "PUT", { json: clientData, response: "ignore" })
+}
 export async function apiPostRole(api: Api, request: PostRoleRequest): Promise<PostRoleResponse> {
     const response = await fetchApi(api, "/role", POST, {
         json: request,

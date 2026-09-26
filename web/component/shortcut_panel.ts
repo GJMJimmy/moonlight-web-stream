@@ -3,7 +3,8 @@ import { showModal } from "./modal/index.js"
 import { getCurrentLanguage, getTranslations } from "../i18n.js"
 import { StreamKeys } from "../api_bindings.js"
 import { StreamInput } from "../stream/input.js"
-import { ManageShortcutsModal, MODIFIER_DEFINITIONS, ModifierDefinition, StoredShortcut, loadShortcuts } from "./manage_shortcuts_modal.js"
+import { Api } from "../api.js"
+import { ManageShortcutsModal, MODIFIER_DEFINITIONS, ModifierDefinition, StoredShortcut, loadShortcuts, loadShortcutsAsync } from "./manage_shortcuts_modal.js"
 
 export class ShortcutPanel implements Component {
 
@@ -15,9 +16,11 @@ export class ShortcutPanel implements Component {
     private visible = false
     private activeModifiers = new Map<string, ModifierDefinition>()
 
-    private manageModal = new ManageShortcutsModal()
+    private manageModal: ManageShortcutsModal
 
-    constructor(private getInput: () => StreamInput | null) {
+    constructor(private getInput: () => StreamInput | null, private getApi: () => Api) {
+        this.manageModal = new ManageShortcutsModal(this.getApi)
+
         this.div.classList.add("sidebar-stream-shortcuts")
         this.div.hidden = true
 
@@ -55,12 +58,17 @@ export class ShortcutPanel implements Component {
         manageButton.addEventListener("click", async () => {
             await showModal(this.manageModal)
 
-            // The modal may have changed, added or reordered shortcuts
+            // The modal may have changed, added or reordered shortcuts -
+            // re-fetch from the server (falls back to local on failure)
+            await loadShortcutsAsync(this.getApi()).catch(() => { })
             this.refresh()
         })
         this.manageDiv.appendChild(manageButton)
 
         this.refresh()
+
+        // Load the per-user shortcuts from the server, then re-render
+        void loadShortcutsAsync(this.getApi()).then(() => this.refresh()).catch(() => { })
 
         const releaseOn = () => this.releaseAll()
         window.addEventListener("blur", releaseOn)
