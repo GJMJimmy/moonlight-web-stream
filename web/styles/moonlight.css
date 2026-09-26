@@ -882,6 +882,8 @@ canvas.video-stream {
     gap: 8px;
     padding: 8px;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
+    width: 260px;
+    box-sizing: border-box;
 }
 
 .sidebar-stream-shortcuts[hidden] {
@@ -897,7 +899,7 @@ canvas.video-stream {
 }
 
 .sidebar-stream-shortcuts-buttons.sidebar-stream-shortcuts-modifiers {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .modal-clipboard {
@@ -921,8 +923,14 @@ canvas.video-stream {
 
 .sidebar-stream-shortcuts-buttons {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
+}
+
+.sidebar-stream-shortcuts-buttons button {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .sidebar-stream-shortcuts-buttons button.shortcut-active {
