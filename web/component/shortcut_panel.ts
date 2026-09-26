@@ -238,6 +238,11 @@ export class ShortcutPanel implements Component {
             const button = document.createElement("button")
             button.innerText = shortcut.name
             button.addEventListener("click", () => {
+                // Skip the synthetic click that follows a long-press contextmenu
+                if (Date.now() - this.lastMenuShownAt < 500) {
+                    return
+                }
+
                 this.sendCombo(shortcut)
             })
             // Long-press (touch) / right click -> delete menu. The global
@@ -253,18 +258,24 @@ export class ShortcutPanel implements Component {
         }
     }
 
+    private lastMenuShownAt: number = 0
+    private deleteMenuCloseHandler: ((event: Event) => void) | null = null
+
     private showDeleteMenu(event: MouseEvent, shortcut: StoredShortcut): void {
         const i = getTranslations(getCurrentLanguage()).stream
 
         this.removeDeleteMenu()
+        this.lastMenuShownAt = Date.now()
 
         const menu = document.createElement("div")
         menu.classList.add("shortcut-delete-menu")
 
         const deleteButton = document.createElement("button")
         deleteButton.innerText = i.deleteShortcut
-        deleteButton.addEventListener("click", event => {
-            event.stopPropagation()
+        // Pointerup works on touch where the synthetic click after a
+        // long-press is unreliable
+        deleteButton.addEventListener("pointerup", menuEvent => {
+            menuEvent.stopPropagation()
 
             this.removeDeleteMenu()
             saveShortcuts(loadShortcuts().filter(x => x.name != shortcut.name))
@@ -272,16 +283,43 @@ export class ShortcutPanel implements Component {
         })
         menu.appendChild(deleteButton)
 
-        menu.style.left = `${event.clientX}px`
-        menu.style.top = `${event.clientY}px`
+        // Show the menu above the finger so it isn't covered by the hand,
+        // clamped into the viewport
+        const x = Math.min(Math.max(event.clientX, 8), Math.max(window.innerWidth - 150, 8))
+        const y = Math.max(event.clientY - 56, 8)
+        menu.style.left = `${x}px`
+        menu.style.top = `${y}px`
         document.body.appendChild(menu)
 
-        const close = () => this.removeDeleteMenu()
-        window.addEventListener("click", close, { once: true })
-        window.addEventListener("contextmenu", close, { once: true })
+        // Close on the next press anywhere outside the menu. Capture phase
+        // so it works even when other handlers stop propagation.
+        const closeHandler = (downEvent: Event) => {
+            const target = downEvent.target
+            if (target instanceof Node && menu.contains(target)) {
+                return
+            }
+
+            this.removeDeleteMenu()
+        }
+        this.deleteMenuCloseHandler = closeHandler
+        document.addEventListener("pointerdown", closeHandler, true)
+        document.addEventListener("keydown", closeHandler, true)
+
+        // Long-press right after showing shouldn't retrigger instantly
+        setTimeout(() => {
+            if (this.deleteMenuCloseHandler === closeHandler) {
+                this.deleteMenuCloseHandler = null
+            }
+        }, 0)
     }
 
     private removeDeleteMenu(): void {
+        if (this.deleteMenuCloseHandler != null) {
+            document.removeEventListener("pointerdown", this.deleteMenuCloseHandler, true)
+            document.removeEventListener("keydown", this.deleteMenuCloseHandler, true)
+            this.deleteMenuCloseHandler = null
+        }
+
         for (const menu of document.body.querySelectorAll(".shortcut-delete-menu")) {
             menu.remove()
         }

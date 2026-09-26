@@ -1051,4 +1051,6 @@ canvas.video-stream {
     display: block;
     width: 100%;
     white-space: nowrap;
+    padding: 10px 18px;
+    touch-action: manipulation;
 }
