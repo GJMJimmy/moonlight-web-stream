@@ -67,17 +67,21 @@ export class ShortcutPanel implements Component {
 
         this.refresh()
 
-        // Load the per-user shortcuts from the server, then re-render
-        void loadShortcutsAsync(this.getApi()).then(() => this.refresh()).catch(() => { })
-
         const releaseOn = () => this.releaseAll()
         window.addEventListener("blur", releaseOn)
         window.addEventListener("beforeunload", releaseOn)
     }
 
-    // Shows/hides the panel. Hiding releases all held modifiers.
+    // Shows/hides the panel. Hiding releases all held modifiers. The first
+    // expansion loads the per-user shortcuts from the server - the panel is
+    // created as a sidebar field initializer, where app is not assigned yet.
     toggle(): boolean {
         this.setVisible(!this.visible)
+
+        if (this.visible) {
+            void loadShortcutsAsync(this.getApi()).then(() => this.refresh()).catch(() => { })
+        }
+
         return this.visible
     }
 
