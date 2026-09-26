@@ -1054,3 +1054,49 @@ canvas.video-stream {
     padding: 10px 18px;
     touch-action: manipulation;
 }
+
+.modal-shortcut-manage {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: min(420px, 86vw);
+}
+
+.modal-shortcut-manage-top {
+    display: flex;
+    gap: 8px;
+}
+
+.modal-shortcut-manage-top button {
+    flex: 1;
+}
+
+.modal-shortcut-manage-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.modal-shortcut-manage-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.modal-shortcut-manage-row > span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.modal-shortcut-manage-row button {
+    touch-action: manipulation;
+}
+
+.modal-shortcut-manage-empty {
+    margin: 0;
+    opacity: 0.7;
+}

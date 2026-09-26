@@ -1,147 +1,21 @@
 import { Component } from "./index.js"
-import { InputComponent, SelectComponent } from "./input.js"
-import { FormModal } from "./modal/form.js"
 import { showModal } from "./modal/index.js"
 import { getCurrentLanguage, getTranslations } from "../i18n.js"
-import { StreamKeyModifiers, StreamKeys } from "../api_bindings.js"
+import { StreamKeys } from "../api_bindings.js"
 import { StreamInput } from "../stream/input.js"
-
-type StoredShortcut = {
-    name: string
-    key: number
-    modifiers: number
-}
-
-const STORAGE_KEY = "mlShortcuts"
-
-type ModifierDefinition = {
-    id: string
-    label: string
-    key: number
-    mask: number
-}
-
-const MODIFIER_DEFINITIONS: Array<ModifierDefinition> = [
-    { id: "ctrl", label: "Ctrl", key: StreamKeys.VK_CONTROL, mask: StreamKeyModifiers.MASK_CTRL },
-    { id: "alt", label: "Alt", key: StreamKeys.VK_MENU, mask: StreamKeyModifiers.MASK_ALT },
-    { id: "shift", label: "Shift", key: StreamKeys.VK_SHIFT, mask: StreamKeyModifiers.MASK_SHIFT },
-    { id: "win", label: "Win", key: StreamKeys.VK_LWIN, mask: StreamKeyModifiers.MASK_META },
-]
-
-function loadShortcuts(): Array<StoredShortcut> {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY)
-        if (raw == null) {
-            return []
-        }
-
-        const parsed = JSON.parse(raw)
-        if (!Array.isArray(parsed)) {
-            return []
-        }
-
-        return parsed.filter(x => x != null && typeof x.name == "string" && typeof x.key == "number" && typeof x.modifiers == "number")
-    } catch (e) {
-        return []
-    }
-}
-
-function saveShortcuts(shortcuts: Array<StoredShortcut>) {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(shortcuts))
-    } catch (e) { }
-}
-
-class AddShortcutModal extends FormModal<StoredShortcut> {
-
-    private nameInput: InputComponent
-    private keyDropdown: SelectComponent
-    private modifierChecks: Array<{ def: ModifierDefinition, input: InputComponent }> = []
-
-    constructor() {
-        super()
-
-        const i = getTranslations(getCurrentLanguage()).stream
-
-        this.nameInput = new InputComponent("shortcutName", "text", i.shortcutName)
-
-        const keyList = []
-        for (const keyNameRaw in StreamKeys) {
-            const keyName = keyNameRaw as keyof typeof StreamKeys
-            const keyValue = StreamKeys[keyName]
-
-            const PREFIX = "VK_"
-
-            let name: string = keyName
-            if (name.startsWith(PREFIX)) {
-                name = name.slice(PREFIX.length)
-            }
-
-            keyList.push({
-                value: keyValue.toString(),
-                name
-            })
-        }
-
-        this.keyDropdown = new SelectComponent("shortcutKey", keyList, {
-            hasSearch: true,
-            displayName: i.shortcutKey
-        })
-
-        for (const def of MODIFIER_DEFINITIONS) {
-            this.modifierChecks.push({ def, input: new InputComponent("shortcutModifier" + def.id, "checkbox", def.label) })
-        }
-    }
-
-    mountForm(form: HTMLFormElement): void {
-        this.nameInput.mount(form)
-        this.keyDropdown.mount(form)
-
-        for (const check of this.modifierChecks) {
-            check.input.mount(form)
-        }
-    }
-
-    reset(): void {
-        this.nameInput.reset()
-        this.keyDropdown.reset()
-
-        for (const check of this.modifierChecks) {
-            check.input.setChecked(false)
-        }
-    }
-
-    submit(): StoredShortcut | null {
-        const name = this.nameInput.getValue().trim()
-        if (name.length == 0) {
-            return null
-        }
-
-        const keyString = this.keyDropdown.getValue()
-        if (keyString == null) {
-            return null
-        }
-
-        let modifiers = 0
-        for (const check of this.modifierChecks) {
-            if (check.input.isChecked()) {
-                modifiers |= check.def.mask
-            }
-        }
-
-        return { name, key: parseInt(keyString), modifiers }
-    }
-}
+import { ManageShortcutsModal, MODIFIER_DEFINITIONS, ModifierDefinition, StoredShortcut, loadShortcuts } from "./manage_shortcuts_modal.js"
 
 export class ShortcutPanel implements Component {
 
     private div = document.createElement("div")
     private modifierDiv = document.createElement("div")
     private customDiv = document.createElement("div")
-    private addDiv = document.createElement("div")
+    private manageDiv = document.createElement("div")
 
     private visible = false
     private activeModifiers = new Map<string, ModifierDefinition>()
+
+    private manageModal = new ManageShortcutsModal()
 
     constructor(private getInput: () => StreamInput | null) {
         this.div.classList.add("sidebar-stream-shortcuts")
@@ -155,8 +29,8 @@ export class ShortcutPanel implements Component {
         this.customDiv.classList.add("sidebar-stream-shortcuts-custom")
         this.div.appendChild(this.customDiv)
 
-        this.addDiv.classList.add("sidebar-stream-shortcuts-addrow")
-        this.div.appendChild(this.addDiv)
+        this.manageDiv.classList.add("sidebar-stream-shortcuts-addrow")
+        this.div.appendChild(this.manageDiv)
 
         for (const def of MODIFIER_DEFINITIONS) {
             const button = document.createElement("button")
@@ -176,25 +50,15 @@ export class ShortcutPanel implements Component {
 
         const i = getTranslations(getCurrentLanguage()).stream
 
-        const addButton = document.createElement("button")
-        addButton.innerText = i.addShortcut
-        addButton.addEventListener("click", async () => {
-            const result = await showModal(new AddShortcutModal())
-            if (result == null) {
-                return
-            }
+        const manageButton = document.createElement("button")
+        manageButton.innerText = i.manageShortcuts
+        manageButton.addEventListener("click", async () => {
+            await showModal(this.manageModal)
 
-            const list = loadShortcuts()
-            const existing = list.findIndex(x => x.name == result.name)
-            if (existing != -1) {
-                list[existing] = result
-            } else {
-                list.push(result)
-            }
-            saveShortcuts(list)
+            // The modal may have changed, added or reordered shortcuts
             this.refresh()
         })
-        this.addDiv.appendChild(addButton)
+        this.manageDiv.appendChild(manageButton)
 
         this.refresh()
 
@@ -228,8 +92,6 @@ export class ShortcutPanel implements Component {
     // Rebuilds the custom shortcut buttons (in the order they were added).
     // The Tab button is the first child and stays in place.
     private refresh(): void {
-        const i = getTranslations(getCurrentLanguage()).stream
-
         while (this.customDiv.children.length > 1) {
             this.customDiv.removeChild(this.customDiv.lastChild!)
         }
@@ -238,90 +100,9 @@ export class ShortcutPanel implements Component {
             const button = document.createElement("button")
             button.innerText = shortcut.name
             button.addEventListener("click", () => {
-                // Skip the synthetic click that follows a long-press contextmenu
-                if (Date.now() - this.lastMenuShownAt < 500) {
-                    return
-                }
-
                 this.sendCombo(shortcut)
             })
-            // Long-press (touch) / right click -> delete menu. The global
-            // context menu component lives in index.html and doesn't exist on
-            // the stream page, so this uses its own small popup.
-            button.addEventListener("contextmenu", event => {
-                event.preventDefault()
-                event.stopPropagation()
-
-                this.showDeleteMenu(event as MouseEvent, shortcut)
-            })
             this.customDiv.appendChild(button)
-        }
-    }
-
-    private lastMenuShownAt: number = 0
-    private deleteMenuCloseHandler: ((event: Event) => void) | null = null
-
-    private showDeleteMenu(event: MouseEvent, shortcut: StoredShortcut): void {
-        const i = getTranslations(getCurrentLanguage()).stream
-
-        this.removeDeleteMenu()
-        this.lastMenuShownAt = Date.now()
-
-        const menu = document.createElement("div")
-        menu.classList.add("shortcut-delete-menu")
-
-        const deleteButton = document.createElement("button")
-        deleteButton.innerText = i.deleteShortcut
-        // Pointerup works on touch where the synthetic click after a
-        // long-press is unreliable
-        deleteButton.addEventListener("pointerup", menuEvent => {
-            menuEvent.stopPropagation()
-
-            this.removeDeleteMenu()
-            saveShortcuts(loadShortcuts().filter(x => x.name != shortcut.name))
-            this.refresh()
-        })
-        menu.appendChild(deleteButton)
-
-        // Show the menu above the finger so it isn't covered by the hand,
-        // clamped into the viewport
-        const x = Math.min(Math.max(event.clientX, 8), Math.max(window.innerWidth - 150, 8))
-        const y = Math.max(event.clientY - 56, 8)
-        menu.style.left = `${x}px`
-        menu.style.top = `${y}px`
-        document.body.appendChild(menu)
-
-        // Close on the next press anywhere outside the menu. Capture phase
-        // so it works even when other handlers stop propagation.
-        const closeHandler = (downEvent: Event) => {
-            const target = downEvent.target
-            if (target instanceof Node && menu.contains(target)) {
-                return
-            }
-
-            this.removeDeleteMenu()
-        }
-        this.deleteMenuCloseHandler = closeHandler
-        document.addEventListener("pointerdown", closeHandler, true)
-        document.addEventListener("keydown", closeHandler, true)
-
-        // Long-press right after showing shouldn't retrigger instantly
-        setTimeout(() => {
-            if (this.deleteMenuCloseHandler === closeHandler) {
-                this.deleteMenuCloseHandler = null
-            }
-        }, 0)
-    }
-
-    private removeDeleteMenu(): void {
-        if (this.deleteMenuCloseHandler != null) {
-            document.removeEventListener("pointerdown", this.deleteMenuCloseHandler, true)
-            document.removeEventListener("keydown", this.deleteMenuCloseHandler, true)
-            this.deleteMenuCloseHandler = null
-        }
-
-        for (const menu of document.body.querySelectorAll(".shortcut-delete-menu")) {
-            menu.remove()
         }
     }
 
