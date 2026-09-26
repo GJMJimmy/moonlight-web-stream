@@ -1,0 +1,8 @@
+fmt: 0
+d920044 fix attribute placement: restore the delete route on delete_user
+eeae49f store shortcuts per user on the server instead of localStorage
+ M clipboard-agent.ps1
+?? final-verify.txt
+?? fmt-final.txt
+?? web/api_bindings.d.ts
+?? web/api_bindings.js

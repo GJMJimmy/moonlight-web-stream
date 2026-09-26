@@ -1,0 +1,28 @@
+=== git log ===
+eeae49f store shortcuts per user on the server instead of localStorage
+8bb7376 shortcuts panel: show full names instead of ellipsizing
+701d769 keep the sidebar narrow when the shortcuts panel is open
+=== last commit files ===
+ src/api/mod.rs                          |  6 ++-
+ src/api/user.rs                         | 22 +++++++-
+ src/app/storage/json/mod.rs             |  6 +++
+ src/app/storage/json/versions.rs        |  4 ++
+ src/app/storage/mod.rs                  |  3 ++
+ src/app/user.rs                         | 27 ++++++++++
+ web/api.ts                              |  9 ++++
+ web/component/manage_shortcuts_modal.ts | 95 ++++++++++++++++++++++++++++-----
+ web/component/shortcut_panel.ts         | 16 ++++--
+ web/locales/en.ts                       |  1 +
+ web/locales/fr-FR.ts                    |  1 +
+ web/locales/ko-KR.ts                    |  1 +
+ web/locales/pt-BR.ts                    |  1 +
+ web/locales/zh-CN.ts                    |  1 +
+ web/stream.ts                           |  5 +-
+ 15 files changed, 179 insertions(+), 19 deletions(-)
+=== push state ===
+no remote tracking
+=== working tree ===
+ M clipboard-agent.ps1
+?? final-verify.txt
+?? web/api_bindings.d.ts
+?? web/api_bindings.js

@@ -8,7 +8,7 @@
 #         powershell -ExecutionPolicy Bypass -File <full path>\clipboard-agent.ps1
 
 param(
-    [int]$Port = 47999
+    [int]$Port = 9191
 )
 
 $ErrorActionPreference = "Continue"
