@@ -1325,8 +1325,9 @@ canvas.video-stream {
 }
 
 .sidebar-stream-shortcuts-buttons button.shortcut-active {
-    background: var(--accent-light);
-    color: var(--text-2);
+    background: var(--accent);
+    border-color: var(--accent-hover);
+    color: #ffffff;
 }
 .hiddeninput {
     position: absolute;
