@@ -1516,6 +1516,8 @@ canvas.video-stream {
     box-shadow: var(--shadow-2, 0 8px 24px rgba(0, 0, 0, 0.5));
     width: fit-content;
     max-width: 96vw;
+    max-height: 80vh;
+    overflow: auto;
     user-select: none;
     opacity: var(--vk-opacity, 0.75);
     --vk-gap: 4px;
@@ -1531,6 +1533,7 @@ canvas.video-stream {
     display: flex;
     flex-direction: column;
     gap: var(--vk-gap);
+    flex-shrink: 0;
 }
 
 .vk-row {

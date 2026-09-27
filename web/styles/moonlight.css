@@ -1123,10 +1123,8 @@ canvas.video-stream {
     background: rgba(19, 21, 25, var(--vk-opacity, 0.75));
     border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
     box-shadow: var(--shadow-2, 0 8px 24px rgba(0, 0, 0, 0.5));
-    width: fit-content;
-    max-width: 96vw;
-    user-select: none;
-    opacity: var(--vk-opacity, 0.75);
+    max-height: 80vh;
+    overflow: auto;
     --vk-gap: 4px;
     --vk-unit: calc(min(calc((96vw - 32px) / 15.5), 52px) * var(--vk-scale, 1));
 }
@@ -1140,6 +1138,7 @@ canvas.video-stream {
     display: flex;
     flex-direction: column;
     gap: var(--vk-gap);
+    flex-shrink: 0;
 }
 
 .vk-row {

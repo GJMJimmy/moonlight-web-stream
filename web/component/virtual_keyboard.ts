@@ -115,10 +115,17 @@ export class VirtualKeyboard implements Component {
     }
 
     setScale(percent: number): void {
-        // zoom scales the whole layout and is reliably supported by every
-        // chromium webview (transform-based scaling did not repaint there)
-        const clamped = Math.max(50, Math.min(150, percent)) / 100
-        this.root.style.zoom = String(clamped)
+        // per-keycap inline sizing: CSS variable inheritance updates proved
+        // unreliable on older webviews, direct pixel widths always repaint
+        const scale = Math.max(50, Math.min(150, percent)) / 100
+        const unit = Math.min((window.innerWidth * 0.96 - 32) / 15.5, 52) * scale
+        this.root.style.setProperty("--vk-unit", unit + "px")
+        this.root.style.fontSize = unit * 0.3 + "px"
+        for (const element of this.root.querySelectorAll<HTMLElement>(".vk-key, .vk-empty")) {
+            const w = parseFloat(element.style.getPropertyValue("--w") || element.dataset.w || "1")
+            element.style.width = w * unit + "px"
+            element.style.height = unit + "px"
+        }
     }
 
     setOpacity(percent: number): void {
@@ -297,4 +304,126 @@ export class VirtualKeyboard implements Component {
             button.style.color = ""
         }
     }
+}
+
+export type DragPosition = {
+    x: number
+    y: number
+}
+
+// Makes the floating toggle draggable with a tap/drag distinction:
+// moving less than the threshold and releasing counts as a tap (onTap),
+// dragging further repositions the button and reports the new position.
+// Touch and mouse are handled with their raw events - the synthetic click
+// after a touch is unreliable on older webviews. Stops propagation so the
+// stream input handlers on document never see the interaction.
+export function makeDraggableToggle(
+    button: HTMLElement,
+    onTap: () => void,
+    getStoredPosition: () => DragPosition | null,
+    onPositionChange: (position: DragPosition) => void,
+): void {
+    const DRAG_THRESHOLD = 6
+
+    let active = false
+    let moved = false
+    let startX = 0
+    let startY = 0
+    let originLeft = 0
+    let originTop = 0
+
+    const clamp = (value: number, max: number) => Math.max(0, Math.min(max, value))
+
+    const applyPosition = (left: number, top: number) => {
+        button.style.left = clamp(left, window.innerWidth - button.offsetWidth) + "px"
+        button.style.top = clamp(top, window.innerHeight - button.offsetHeight) + "px"
+        button.style.right = "auto"
+    }
+
+    // restore a stored position (clamped into the current viewport)
+    const stored = getStoredPosition()
+    if (stored && stored.x >= 0 && stored.y >= 0) {
+        applyPosition(stored.x, stored.y)
+    }
+
+    const start = (x: number, y: number) => {
+        active = true
+        moved = false
+        startX = x
+        startY = y
+        const rect = button.getBoundingClientRect()
+        originLeft = rect.left
+        originTop = rect.top
+    }
+
+    const move = (x: number, y: number) => {
+        if (!active) {
+            return
+        }
+
+        const dx = x - startX
+        const dy = y - startY
+
+        if (!moved && Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) {
+            return
+        }
+
+        moved = true
+        applyPosition(originLeft + dx, originTop + dy)
+    }
+
+    const end = () => {
+        if (!active) {
+            return
+        }
+
+        active = false
+
+        if (moved) {
+            const rect = button.getBoundingClientRect()
+            onPositionChange({ x: Math.round(rect.left), y: Math.round(rect.top) })
+        } else {
+            onTap()
+        }
+    }
+
+    button.addEventListener("touchstart", event => {
+        event.stopPropagation()
+        event.preventDefault()
+        start(event.touches[0].clientX, event.touches[0].clientY)
+    }, { passive: false })
+
+    button.addEventListener("touchmove", event => {
+        event.stopPropagation()
+        event.preventDefault()
+        move(event.touches[0].clientX, event.touches[0].clientY)
+    }, { passive: false })
+
+    button.addEventListener("touchend", event => {
+        event.stopPropagation()
+        event.preventDefault()
+        end()
+    }, { passive: false })
+
+    button.addEventListener("mousedown", event => {
+        event.stopPropagation()
+        event.preventDefault()
+        start(event.clientX, event.clientY)
+    })
+
+    window.addEventListener("mousemove", event => {
+        if (!active) {
+            return
+        }
+        event.stopPropagation()
+        move(event.clientX, event.clientY)
+    })
+
+    window.addEventListener("mouseup", event => {
+        if (!active) {
+            return
+        }
+        event.stopPropagation()
+        end()
+    })
 }
