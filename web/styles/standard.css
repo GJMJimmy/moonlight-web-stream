@@ -1263,6 +1263,8 @@ canvas.video-stream {
 .sidebar-stream {
     display: flex;
     flex-direction: column;
+    max-height: 100vh;
+    overflow-y: auto;
 }
 
 .sidebar-stream-buttons {
@@ -1326,11 +1328,6 @@ canvas.video-stream {
     white-space: normal;
     overflow-wrap: break-word;
     text-align: center;
-}
-
-.sidebar-stream-shortcuts-custom {
-    grid-template-columns: minmax(0, 1fr);
-    min-width: 0;
 }
 
 .sidebar-stream-shortcuts-buttons button.shortcut-active {
