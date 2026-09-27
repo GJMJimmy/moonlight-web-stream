@@ -8,6 +8,10 @@
     --text-2: #f2f3f6;
     --text-muted: #9aa1ad;
     --border-subtle: rgba(255, 255, 255, 0.08);
+    --button-bg: #272c37;
+    --button-border: rgba(255, 255, 255, 0.22);
+    --field-bg: #101218;
+    --field-border: rgba(255, 255, 255, 0.22);
     --border-strong: rgba(255, 255, 255, 0.16);
     --accent-cyan: #5b74f2;
     --accent-cyan-2: #7d92ff;
@@ -137,11 +141,11 @@ label {
 /** Button */
 .file-button,
 button {
-    background-color: var(--bg-3);
+    background-color: var(--button-bg);
     background-size: 60px;
     background-position: center;
     background-repeat: no-repeat;
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--button-border);
     border-radius: var(--radius-md);
     padding: var(--space-sm) var(--space-md);
     margin: var(--space-sm);
@@ -159,7 +163,7 @@ button:hover:not(:disabled) {
     transition: all var(--dur-med) ease;
     box-shadow: var(--shadow-2);
     transform: translateY(-1px);
-    background-color: var(--bg-3);
+    background-color: #2f3542;
     border-color: var(--accent-hover);
 }
 
@@ -192,12 +196,12 @@ input[type="checkbox"] {
     vertical-align: middle;
     width: 24px;
     height: 24px;
-    border: 1px solid var(--border-strong);
+    border: 1px solid var(--field-border);
     border-radius: 7px;
     cursor: pointer;
     position: relative;
     display: inline-block;
-    background: var(--bg-2);
+    background: var(--field-bg);
     transition: all var(--dur-fast) ease;
 }
 
@@ -266,9 +270,9 @@ input[type=number] {
     color: var(--text-1);
     font-size: 1.2rem;
     margin: 5px;
-    background-color: var(--bg-2);
+    background-color: var(--field-bg);
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--field-border);
     /* multiline */
     overflow-x: auto;
     overflow-y: auto;
@@ -945,7 +949,7 @@ input[type=number] {
     cursor: pointer;
     margin: var(--space-sm);
     padding: var(--space-md) var(--space-md);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-md);
     background: var(--bg-1);
     box-shadow: var(--shadow-1);
