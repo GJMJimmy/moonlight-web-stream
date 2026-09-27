@@ -1506,45 +1506,60 @@ canvas.video-stream {
     transform: translate(-50%, -50%);
     z-index: 900;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 10px;
+    flex-direction: row;
+    gap: var(--vk-gap, 4px);
+    padding: 8px;
     border-radius: var(--radius-md, 10px);
     background: var(--bg-1, #1a1d24);
     border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
     box-shadow: var(--shadow-2, 0 8px 24px rgba(0, 0, 0, 0.5));
-    max-width: min(96vw, 900px);
+    width: fit-content;
+    max-width: 96vw;
     user-select: none;
     opacity: var(--vk-opacity, 0.75);
+    --vk-gap: 4px;
+    --vk-unit: min(calc((96vw - 32px) / 15.5), 52px);
 }
 
 .virtual-keyboard[hidden] {
     display: none;
 }
 
+.vk-main,
+.vk-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vk-gap);
+}
+
 .vk-row {
     display: flex;
-    gap: 4px;
+    gap: var(--vk-gap);
 }
 
 .vk-key {
-    flex: var(--w, 1) 1 0;
-    min-width: 0;
-    min-height: 34px;
+    --w: 1;
+    width: calc(var(--w) * var(--vk-unit));
+    height: var(--vk-unit);
+    flex: 0 0 auto;
     border-radius: 6px;
     border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
     background: var(--bg-3, rgba(255, 255, 255, 0.08));
     color: var(--text-1, #e7e9ee);
-    font-size: 0.85rem;
-    padding: 4px 2px;
-    margin: 0;
+    font-size: calc(var(--vk-unit) * 0.3);
     cursor: pointer;
     touch-action: manipulation;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
     white-space: nowrap;
+}
+
+.vk-key:hover {
+    border-color: var(--border-strong, rgba(255, 255, 255, 0.3));
 }
 
 .vk-key:active {
@@ -1557,8 +1572,49 @@ canvas.video-stream {
     color: #ffffff;
 }
 
+.vk-symbol .vk-key.vk-symbol-key {
+    background: var(--bg-3, rgba(255, 255, 255, 0.08));
+    color: var(--accent-cyan-light, #a5b4ff);
+}
+
 .vk-blank .vk-key span {
     visibility: hidden;
+}
+
+.vk-empty {
+    width: var(--vk-unit);
+    height: var(--vk-unit);
+}
+
+.vk-nav .vk-key {
+    font-size: calc(var(--vk-unit) * 0.22);
+}
+
+.vk-floating-toggle {
+    position: fixed;
+    top: calc(50% + 56px);
+    right: 12px;
+    z-index: 1000;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: 999px;
+    background: rgba(19, 21, 25, 0.9);
+    color: var(--text-1, #e7e9ee);
+    font-size: 18px;
+    opacity: 0.85;
+    cursor: pointer;
+    touch-action: manipulation;
+    margin: 0;
+    padding: 0;
+}
+
+.vk-floating-toggle:active {
+    opacity: 1;
+    transform: scale(0.95);
 }
 
 .vk-floating-toggle {
