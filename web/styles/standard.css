@@ -1295,10 +1295,6 @@ canvas.video-stream {
     width: 100%;
 }
 
-.sidebar-stream-shortcuts-buttons.sidebar-stream-shortcuts-modifiers {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
 .modal-clipboard {
     display: flex;
     flex-direction: column;
@@ -1320,7 +1316,7 @@ canvas.video-stream {
 
 .sidebar-stream-shortcuts-buttons {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 6px;
 }
 
