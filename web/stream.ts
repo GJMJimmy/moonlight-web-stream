@@ -987,6 +987,7 @@ class ViewerSidebar implements Component, Sidebar {
     private vkToggleButton = document.createElement("button")
     private keyboardStyle: SelectComponent
     private keyboardOpacity: InputComponent
+    private keyboardScale: InputComponent
 
     constructor(app: ViewerApp) {
         this.app = app
@@ -1146,7 +1147,18 @@ class ViewerSidebar implements Component, Sidebar {
         })
         this.keyboardOpacity.addChangeListener(this.onKeyboardOpacityChange.bind(this))
         this.keyboardOpacity.mount(this.div)
+        ;(this.keyboardOpacity as any).div.classList.add("vk-slider")
         this.wireKeyboardOpacityPreview()
+
+        this.keyboardScale = new InputComponent("vkScale", "number", I.stream.keyboardScale, {
+            value: String(this.app.getLocalSettings().keyboardScale),
+            step: "5",
+            numberSlider: { range_min: 50, range_max: 150 }
+        })
+        this.keyboardScale.addChangeListener(this.onKeyboardScaleChange.bind(this))
+        this.keyboardScale.mount(this.div)
+        ;(this.keyboardScale as any).div.classList.add("vk-slider")
+        this.wireKeyboardScalePreview()
 
         // Floating toggle for the virtual keyboard
         this.vkToggleButton.innerText = "⌨"
@@ -1237,6 +1249,27 @@ class ViewerSidebar implements Component, Sidebar {
 
         const settings = this.app.getLocalSettings()
         settings.keyboardOpacity = value
+        setLocalStreamSettings(settings)
+    }
+
+    private wireKeyboardScalePreview() {
+        const scaleDiv = (this.keyboardScale as any).div as HTMLElement
+        for (const element of scaleDiv.querySelectorAll("input")) {
+            element.addEventListener("input", () => {
+                const value = parseFloat(this.keyboardScale.getValue())
+                if (!isNaN(value)) {
+                    this.virtualKeyboard.setScale(value)
+                }
+            })
+        }
+    }
+
+    private onKeyboardScaleChange() {
+        const value = parseFloat(this.keyboardScale.getValue())
+        this.virtualKeyboard.setScale(value)
+
+        const settings = this.app.getLocalSettings()
+        settings.keyboardScale = value
         setLocalStreamSettings(settings)
     }
 

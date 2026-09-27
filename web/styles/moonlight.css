@@ -1227,6 +1227,24 @@ canvas.video-stream {
     color: transparent;
 }
 
+.vk-slider {
+    flex-wrap: wrap;
+    max-width: 100%;
+}
+
+.vk-slider input[type="number"] {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.vk-slider input[type="range"] {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 .vk-floating-toggle {
     position: fixed;
     top: calc(50% + 56px);
