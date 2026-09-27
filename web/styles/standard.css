@@ -1279,7 +1279,8 @@ canvas.video-stream {
     gap: 8px;
     padding: 8px;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
-    width: 300px;
+    width: 0;
+    min-width: 100%;
     box-sizing: border-box;
 }
 
