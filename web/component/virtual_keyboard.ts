@@ -104,10 +104,15 @@ export class VirtualKeyboard implements Component {
                 text.innerText = def.label
                 button.appendChild(text)
 
-                // pointerdown fires immediately for touch and mouse alike -
-                // the synthetic click after a touch can be delayed or lost
-                // on older webviews, which made sticky keys feel broken
-                button.addEventListener("pointerdown", event => {
+                // React to the raw events: touchstart is the earliest and most
+                // reliable signal on touch devices (preventDefault also stops
+                // the synthetic mouse/click duplicates), mousedown covers mouse.
+                button.addEventListener("touchstart", event => {
+                    event.stopPropagation()
+                    event.preventDefault()
+                    this.onKeyClick(def, button)
+                }, { passive: false })
+                button.addEventListener("mousedown", event => {
                     event.stopPropagation()
                     this.onKeyClick(def, button)
                 })
@@ -131,17 +136,31 @@ export class VirtualKeyboard implements Component {
     private toggleSticky(vk: number, mask: number, button: HTMLButtonElement): void {
         if (this.activeModifiers.has(vk)) {
             this.activeModifiers.delete(vk)
-            button.classList.remove("vk-mod-active")
+            this.setActiveVisual(button, false)
 
             // release the held modifier
             const input = this.getInput()
             input?.sendKey(false, vk, mask)
         } else {
             this.activeModifiers.set(vk, mask)
-            button.classList.add("vk-mod-active")
+            this.setActiveVisual(button, true)
 
             const input = this.getInput()
             input?.sendKey(true, vk, mask)
+        }
+    }
+
+    // class + inline style: some older webviews repaint class-only changes
+    // lazily, the inline background makes the state change immediate
+    private setActiveVisual(button: HTMLButtonElement, active: boolean): void {
+        if (active) {
+            button.classList.add("vk-mod-active")
+            button.style.backgroundColor = "var(--accent)"
+            button.style.color = "#ffffff"
+        } else {
+            button.classList.remove("vk-mod-active")
+            button.style.backgroundColor = ""
+            button.style.color = ""
         }
     }
 
@@ -162,6 +181,12 @@ export class VirtualKeyboard implements Component {
         const mask = this.activeMask()
         input.sendKey(true, vk, mask)
         input.sendKey(false, vk, mask)
+
+        // auto-release: like a real keyboard, held modifiers come up after
+        // the next regular key was pressed
+        if (mask != 0) {
+            this.releaseSticky()
+        }
     }
 
     // Releases held sticky modifiers (panel hidden / page closed)
@@ -175,8 +200,10 @@ export class VirtualKeyboard implements Component {
         }
         this.activeModifiers.clear()
 
-        for (const button of this.root.querySelectorAll(".vk-key.vk-mod-active")) {
+        for (const button of this.root.querySelectorAll<HTMLElement>(".vk-key.vk-mod-active")) {
             button.classList.remove("vk-mod-active")
+            button.style.backgroundColor = ""
+            button.style.color = ""
         }
     }
 }
