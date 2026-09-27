@@ -6,12 +6,13 @@ import { InfoEvent, Stream } from "./stream/index.js"
 import { getModalBackground, Modal, showMessage, showModal } from "./component/modal/index.js";
 import { getSidebarRoot, setSidebar, setSidebarExtended, setSidebarStyle, Sidebar } from "./component/sidebar/index.js";
 import { defaultStreamInputConfig, MouseMode, ScreenKeyboardSetVisibleEvent, StreamInputConfig } from "./stream/input.js";
-import { getLocalStreamSettings, Settings } from "./component/settings_menu.js";
-import { SelectComponent } from "./component/input.js";
+import { getLocalStreamSettings, setLocalStreamSettings, Settings } from "./component/settings_menu.js";
+import { InputComponent, SelectComponent } from "./component/input.js";
 import { DetailedRole, LogMessageType, StreamCapabilities, StreamKeys, StreamPermissions } from "./api_bindings.js";
 import { KeyboardModeEvent, KeyboardModeWillChangeEvent, ScreenKeyboard, TextEvent } from "./screen_keyboard.js";
 import { FormModal } from "./component/modal/form.js";
 import { ShortcutPanel } from "./component/shortcut_panel.js";
+import { VirtualKeyboard } from "./component/virtual_keyboard.js";
 import { ClipboardModal } from "./component/clipboard_modal.js";
 import { streamStatsToText } from "./stream/stats.js";
 import { adoptRoleDefaultLanguage, getCurrentLanguage, getTranslations } from "./i18n.js";
@@ -99,11 +100,13 @@ class ViewerApp implements Component {
     private hasShownFullscreenEscapeWarning = false
     private keyboardViewportBaselineHeight: number | null = null
     private streamVideoTopOffsetPx: number = 0
+    private localSettings: Settings
 
     constructor(api: Api, hostId: number, appId: number, bootstrapRole: DetailedRole) {
         this.api = api
 
         const settings = getLocalStreamSettings(bootstrapRole.default_settings)
+        this.localSettings = settings
         Object.assign(this.inputConfig, {
             mouseMode: settings.mouseMode,
             mouseScrollMode: settings.mouseScrollMode,
@@ -789,6 +792,9 @@ class ViewerApp implements Component {
         // -> We need to correct for this when sending positions, else positions are wrong
         return this.stream.getVideoRenderer()?.getStreamRect() ?? new DOMRect()
     }
+    getLocalSettings(): Settings {
+        return getLocalStreamSettings(this.localSettings)
+    }
     getStream(): Stream | null {
         return this.stream
     }
@@ -977,6 +983,11 @@ class ViewerSidebar implements Component, Sidebar {
     private mouseMode: SelectComponent
     private touchMode: SelectComponent
 
+    private virtualKeyboard = new VirtualKeyboard(() => this.app.getStream()?.getInput() ?? null)
+    private vkToggleButton = document.createElement("button")
+    private keyboardStyle: SelectComponent
+    private keyboardOpacity: InputComponent
+
     constructor(app: ViewerApp) {
         this.app = app
 
@@ -1116,6 +1127,43 @@ class ViewerSidebar implements Component, Sidebar {
         })
         this.touchMode.addChangeListener(this.onTouchModeChange.bind(this))
         this.touchMode.mount(this.div)
+
+        // Virtual Keyboard
+        this.keyboardStyle = new SelectComponent("vkStyle", [
+            { value: "labeled", name: I.stream.keyboardLabeled },
+            { value: "blank", name: I.stream.keyboardBlank },
+        ], {
+            displayName: I.stream.keyboardStyle,
+            preSelectedOption: this.app.getLocalSettings().keyboardStyle
+        })
+        this.keyboardStyle.addChangeListener(this.onKeyboardStyleChange.bind(this))
+        this.keyboardStyle.mount(this.div)
+
+        this.keyboardOpacity = new InputComponent("vkOpacity", "number", I.stream.keyboardOpacity, {
+            value: String(this.app.getLocalSettings().keyboardOpacity),
+            step: "5",
+            numberSlider: { range_min: 0, range_max: 100 }
+        })
+        this.keyboardOpacity.addChangeListener(this.onKeyboardOpacityChange.bind(this))
+        this.keyboardOpacity.mount(this.div)
+        this.wireKeyboardOpacityPreview()
+
+        // Floating toggle for the virtual keyboard
+        this.vkToggleButton.innerText = "⌨"
+        this.vkToggleButton.title = I.stream.virtualKeyboard
+        this.vkToggleButton.ariaLabel = I.stream.virtualKeyboard
+        this.vkToggleButton.classList.add("vk-floating-toggle")
+        this.vkToggleButton.addEventListener("click", event => {
+            event.preventDefault()
+            event.stopPropagation()
+            const shown = this.virtualKeyboard.toggle()
+            if (!shown) {
+                this.virtualKeyboard.releaseSticky()
+            }
+        })
+        stopPropagationOn(this.vkToggleButton)
+
+        window.addEventListener("beforeunload", () => this.virtualKeyboard.releaseSticky())
     }
 
     onCapabilitiesChange(capabilities: StreamCapabilities) {
@@ -1159,6 +1207,39 @@ class ViewerSidebar implements Component, Sidebar {
         this.app.setInputConfig(config)
     }
 
+    // -- Virtual Keyboard
+    private wireKeyboardOpacityPreview() {
+        // "change" only fires on release - mirror range drags live
+        // (div is protected on the component; we only attach a listener)
+        const opacityDiv = (this.keyboardOpacity as any).div as HTMLElement
+        for (const element of opacityDiv.querySelectorAll("input")) {
+            element.addEventListener("input", () => {
+                const value = parseFloat(this.keyboardOpacity.getValue())
+                if (!isNaN(value)) {
+                    this.virtualKeyboard.setOpacity(value)
+                }
+            })
+        }
+    }
+
+    private onKeyboardStyleChange() {
+        const value = this.keyboardStyle.getValue() as "labeled" | "blank"
+        this.virtualKeyboard.setStyle(value)
+
+        const settings = this.app.getLocalSettings()
+        settings.keyboardStyle = value
+        setLocalStreamSettings(settings)
+    }
+
+    private onKeyboardOpacityChange() {
+        const value = parseFloat(this.keyboardOpacity.getValue())
+        this.virtualKeyboard.setOpacity(value)
+
+        const settings = this.app.getLocalSettings()
+        settings.keyboardOpacity = value
+        setLocalStreamSettings(settings)
+    }
+
     extended(): void {
 
     }
@@ -1170,12 +1251,18 @@ class ViewerSidebar implements Component, Sidebar {
         parent.appendChild(this.div)
         const appRoot = document.getElementById("root")
             ; (appRoot ?? document.body).appendChild(this.floatingKeyboardButton)
+            ; (appRoot ?? document.body).appendChild(this.vkToggleButton)
     }
     unmount(parent: HTMLElement): void {
         parent.removeChild(this.div)
         if (this.floatingKeyboardButton.parentElement) {
             this.floatingKeyboardButton.parentElement.removeChild(this.floatingKeyboardButton)
         }
+        if (this.vkToggleButton.parentElement) {
+            this.vkToggleButton.parentElement.removeChild(this.vkToggleButton)
+        }
+        this.virtualKeyboard.releaseSticky()
+        this.virtualKeyboard.setVisible(false)
     }
 }
 

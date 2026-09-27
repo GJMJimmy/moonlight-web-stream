@@ -45,6 +45,8 @@ const trueDefaultSettings: Settings =
     "toggleFullscreenWithKeybind": false,
     // possible values: "standard", "moonlight", "modern"
     "pageStyle": "standard",
+    "keyboardStyle": "labeled",
+    "keyboardOpacity": 75,
     "hdr": false,
     "useSelectElementPolyfill": false
 }

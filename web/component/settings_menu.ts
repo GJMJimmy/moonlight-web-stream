@@ -32,6 +32,8 @@ export type Settings = {
     enterFullscreenOnStreamStart: boolean
     toggleFullscreenWithKeybind: boolean
     pageStyle: PageStyle
+    keyboardStyle: "labeled" | "blank"
+    keyboardOpacity: number
     hdr: boolean
     useSelectElementPolyfill: boolean
 }
@@ -591,6 +593,12 @@ export class StreamSettingsComponent implements Component {
         settings.toggleFullscreenWithKeybind = this.toggleFullscreenWithKeybind.isChecked()
 
         settings.pageStyle = this.pageStyle.getValue() as any
+
+        // keyboard preferences are managed from the stream sidebar - carry
+        // the stored values through so saving here does not reset them
+        const stored = getLocalStreamSettings(settings)
+        settings.keyboardStyle = stored.keyboardStyle
+        settings.keyboardOpacity = stored.keyboardOpacity
 
         settings.hdr = this.hdr.isChecked()
 

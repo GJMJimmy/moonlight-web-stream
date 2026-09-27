@@ -1107,3 +1107,92 @@ canvas.video-stream {
     margin: 0;
     opacity: 0.7;
 }
+
+.virtual-keyboard {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px;
+    border-radius: var(--radius-md, 10px);
+    background: var(--bg-1, #1a1d24);
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    box-shadow: var(--shadow-2, 0 8px 24px rgba(0, 0, 0, 0.5));
+    max-width: min(96vw, 900px);
+    user-select: none;
+    opacity: var(--vk-opacity, 0.75);
+}
+
+.virtual-keyboard[hidden] {
+    display: none;
+}
+
+.vk-row {
+    display: flex;
+    gap: 4px;
+}
+
+.vk-key {
+    flex: var(--w, 1) 1 0;
+    min-width: 0;
+    min-height: 34px;
+    border-radius: 6px;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.12));
+    background: var(--bg-3, rgba(255, 255, 255, 0.08));
+    color: var(--text-1, #e7e9ee);
+    font-size: 0.85rem;
+    padding: 4px 2px;
+    margin: 0;
+    cursor: pointer;
+    touch-action: manipulation;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.vk-key:active {
+    background: var(--accent-light, rgba(110, 133, 247, 0.3));
+}
+
+.vk-key.vk-mod-active {
+    background: var(--accent, #5b74f2);
+    border-color: var(--accent-hover, #7d92ff);
+    color: #ffffff;
+}
+
+.vk-blank .vk-key span {
+    visibility: hidden;
+}
+
+.vk-floating-toggle {
+    position: fixed;
+    top: calc(50% + 56px);
+    right: 12px;
+    z-index: 1000;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
+    border-radius: 999px;
+    background: rgba(19, 21, 25, 0.9);
+    color: var(--text-1, #e7e9ee);
+    font-size: 18px;
+    opacity: 0.85;
+    cursor: pointer;
+    touch-action: manipulation;
+    margin: 0;
+    padding: 0;
+}
+
+.vk-floating-toggle:active {
+    opacity: 1;
+    transform: scale(0.95);
+}
