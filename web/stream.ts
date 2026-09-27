@@ -1252,6 +1252,7 @@ class ViewerSidebar implements Component, Sidebar {
         const appRoot = document.getElementById("root")
             ; (appRoot ?? document.body).appendChild(this.floatingKeyboardButton)
             ; (appRoot ?? document.body).appendChild(this.vkToggleButton)
+        this.virtualKeyboard.mount(appRoot ?? document.body)
     }
     unmount(parent: HTMLElement): void {
         parent.removeChild(this.div)
@@ -1263,6 +1264,7 @@ class ViewerSidebar implements Component, Sidebar {
         }
         this.virtualKeyboard.releaseSticky()
         this.virtualKeyboard.setVisible(false)
+        this.virtualKeyboard.unmount(document.body)
     }
 }
 
