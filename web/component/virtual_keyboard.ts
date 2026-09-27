@@ -54,7 +54,10 @@ export class VirtualKeyboard implements Component {
         this.build()
 
         const stop = (event: Event) => event.stopPropagation()
-        for (const type of ["keydown", "keyup", "keypress", "click"]) {
+        // The stream binds its touch/mouse input handlers to `document` -
+        // without stopping these here every tap on a key is swallowed by
+        // them (preventDefault kills the synthetic click as well)
+        for (const type of ["keydown", "keyup", "keypress", "click", "mousedown", "mouseup", "mousemove", "wheel", "contextmenu", "touchstart", "touchend", "touchmove", "touchcancel"]) {
             this.root.addEventListener(type, stop)
         }
     }
