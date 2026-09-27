@@ -1503,14 +1503,14 @@ canvas.video-stream {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(var(--vk-scale, 1));
     z-index: 900;
     display: flex;
     flex-direction: row;
     gap: var(--vk-gap, 4px);
     padding: 8px;
     border-radius: var(--radius-md, 10px);
-    background: var(--bg-1, #1a1d24);
+    background: rgba(19, 21, 25, var(--vk-opacity, 0.75));
     border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.14));
     box-shadow: var(--shadow-2, 0 8px 24px rgba(0, 0, 0, 0.5));
     width: fit-content;
@@ -1518,7 +1518,7 @@ canvas.video-stream {
     user-select: none;
     opacity: var(--vk-opacity, 0.75);
     --vk-gap: 4px;
-    --vk-unit: min(calc((96vw - 32px) / 15.5), 52px);
+    --vk-unit: calc(min(calc((96vw - 32px) / 15.5), 52px) * var(--vk-scale, 1));
 }
 
 .virtual-keyboard[hidden] {
@@ -1588,6 +1588,34 @@ canvas.video-stream {
 
 .vk-nav .vk-key {
     font-size: calc(var(--vk-unit) * 0.22);
+}
+
+.vk-blank {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.vk-blank .vk-key {
+    background: transparent;
+    border: 2px solid rgba(0, 0, 0, 0.85);
+    color: transparent;
+}
+
+.vk-blank .vk-key:hover {
+    background: transparent;
+    border-color: rgba(0, 0, 0, 1);
+}
+
+.vk-blank .vk-key:active {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(0, 0, 0, 1);
+}
+
+.vk-blank .vk-key.vk-mod-active {
+    background: rgba(91, 116, 242, 0.45);
+    border-color: rgba(0, 0, 0, 0.9);
+    color: transparent;
 }
 
 .vk-floating-toggle {

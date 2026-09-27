@@ -114,9 +114,18 @@ export class VirtualKeyboard implements Component {
         this.root.classList.toggle("vk-blank", style === "blank")
     }
 
+    setScale(percent: number): void {
+        // zoom scales the whole layout and is reliably supported by every
+        // chromium webview (transform-based scaling did not repaint there)
+        const clamped = Math.max(50, Math.min(150, percent)) / 100
+        this.root.style.zoom = String(clamped)
+    }
+
     setOpacity(percent: number): void {
         this.opacity = percent
-        this.root.style.opacity = String(Math.max(0, Math.min(100, percent)) / 100)
+        // applied as an alpha on the panel background - keycap interiors stay
+        // fully transparent in blank mode regardless of this value
+        this.root.style.setProperty("--vk-opacity", String(Math.max(0, Math.min(100, percent)) / 100))
     }
 
     private build(container: HTMLElement, layout: KeyRow[]): void {
