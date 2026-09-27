@@ -104,7 +104,11 @@ export class VirtualKeyboard implements Component {
                 text.innerText = def.label
                 button.appendChild(text)
 
-                button.addEventListener("click", () => {
+                // pointerdown fires immediately for touch and mouse alike -
+                // the synthetic click after a touch can be delayed or lost
+                // on older webviews, which made sticky keys feel broken
+                button.addEventListener("pointerdown", event => {
+                    event.stopPropagation()
                     this.onKeyClick(def, button)
                 })
 
