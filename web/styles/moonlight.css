@@ -870,7 +870,8 @@ canvas.video-stream {
     flex-direction: column;
     max-height: 100vh;
     overflow-y: auto;
-}
+
+    width: 220px;}
 
 .sidebar-stream-buttons {
     display: grid;
