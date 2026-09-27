@@ -109,6 +109,7 @@ export const frFr: Translations = {
         saveRoleDefaultsFailed: "Echec de l'enregistrement des paramètres par défaut pour le rôle",
         toggleFullscreenWithKeybind: "Basculer entre le mode plein écran et le verrouillage de la souris avec Ctrl + Shift + I",
         style: "Style",
+        styleModern: "Moderne",
         useCustomDropdown: "Utiliser l'implémentation personnalisée du déroulement",
     },
     addHost: {

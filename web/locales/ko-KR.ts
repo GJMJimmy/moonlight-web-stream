@@ -109,6 +109,7 @@ export const koKR: Translations = {
         saveRoleDefaultsFailed: "역할 기본 설정을 저장하지 못했습니다.",
         toggleFullscreenWithKeybind: "Ctrl + Shift + I로 전체 화면 및 마우스 가두기 전환",
         style: "스타일",
+        styleModern: "모던",
         useCustomDropdown: "사용자 정의 드롭다운 구현 사용",
     },
     addHost: {

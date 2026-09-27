@@ -107,6 +107,7 @@ export const en = {
         saveRoleDefaultsFailed: "Couldn't save role default settings",
         toggleFullscreenWithKeybind: "Toggle Fullscreen and Mouse Lock with Ctrl + Shift + I",
         style: "Style",
+        styleModern: "Modern",
         useCustomDropdown: "Use Custom Dropdown Implementation",
     },
     addHost: {

@@ -109,6 +109,7 @@ export const zhCN: Translations = {
         saveRoleDefaultsFailed: "保存角色默认设置失败",
         toggleFullscreenWithKeybind: "按 Ctrl + Shift + I 切换全屏和鼠标锁定",
         style: "样式",
+        styleModern: "现代",
         useCustomDropdown: "使用自定义下拉框实现",
     },
     addHost: {

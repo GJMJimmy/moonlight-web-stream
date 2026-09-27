@@ -1,7 +1,7 @@
 import { globalDefaultSettings, getLocalStreamSettings } from "../component/settings_menu.js"
 
 // old doesn't exist anymore and is always replaced with moonlight when loading the settings
-export type PageStyle = "standard" | "old" | "moonlight"
+export type PageStyle = "standard" | "old" | "moonlight" | "modern"
 
 let currentStyle: PageStyle | null = null
 const styleLink = document.getElementById("style") as HTMLLinkElement

@@ -109,6 +109,7 @@ export const ptBR: Translations = {
         saveRoleDefaultsFailed: "Não foi possível salvar as configurações padrão do perfil",
         toggleFullscreenWithKeybind: "Alternar Tela Cheia e Bloqueio do Mouse com Ctrl + Shift + I",
         style: "Estilo",
+        styleModern: "Moderno",
         useCustomDropdown: "Usar Implementação de Dropdown Personalizada",
     },
     addHost: {

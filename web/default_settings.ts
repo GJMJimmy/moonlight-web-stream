@@ -43,7 +43,7 @@ const trueDefaultSettings: Settings =
     "language": "en",
     "enterFullscreenOnStreamStart": false,
     "toggleFullscreenWithKeybind": false,
-    // possible values: "standard", "old"
+    // possible values: "standard", "moonlight", "modern"
     "pageStyle": "standard",
     "hdr": false,
     "useSelectElementPolyfill": false

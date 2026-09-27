@@ -22,6 +22,10 @@
             document.documentElement.lang = language;
             document.documentElement.translate = false;
             document.documentElement.classList.add("notranslate");
+            const pageStyle = parsed && typeof parsed.pageStyle === "string" ? parsed.pageStyle : "standard";
+            if (pageStyle === "moonlight" || pageStyle === "modern") {
+                document.getElementById("style").href = "styles/" + pageStyle + ".css";
+            }
         } catch (_err) { }
     </script>
 </head>
