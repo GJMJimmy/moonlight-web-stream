@@ -9,9 +9,9 @@
     --text-muted: #9aa1ad;
     --border-subtle: rgba(255, 255, 255, 0.08);
     --button-bg: #272c37;
-    --button-border: rgba(255, 255, 255, 0.22);
+    --button-border: #4e63d8;
     --field-bg: #101218;
-    --field-border: rgba(255, 255, 255, 0.22);
+    --field-border: rgba(125, 146, 255, 0.5);
     --border-strong: rgba(255, 255, 255, 0.16);
     --accent-cyan: #5b74f2;
     --accent-cyan-2: #7d92ff;
@@ -949,7 +949,7 @@ input[type=number] {
     cursor: pointer;
     margin: var(--space-sm);
     padding: var(--space-md) var(--space-md);
-    border: 1px solid var(--border-strong);
+    border: 1px solid rgba(125, 146, 255, 0.35);
     border-radius: var(--radius-md);
     background: var(--bg-1);
     box-shadow: var(--shadow-1);
