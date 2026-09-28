@@ -1160,6 +1160,14 @@ class ViewerSidebar implements Component, Sidebar {
         ;(this.keyboardScale as any).div.classList.add("vk-slider")
         this.wireKeyboardScalePreview()
 
+        // Apply the persisted keyboard preferences to the panel itself - the
+        // sliders only display them, the panel would otherwise open with the
+        // stylesheet defaults every stream
+        const keyboardSettings = this.app.getLocalSettings()
+        this.virtualKeyboard.setStyle(keyboardSettings.keyboardStyle === "blank" ? "blank" : "labeled")
+        this.virtualKeyboard.setOpacity(keyboardSettings.keyboardOpacity)
+        this.virtualKeyboard.setScale(keyboardSettings.keyboardScale)
+
         // Floating toggle for the virtual keyboard (draggable, tap toggles)
         this.vkToggleButton.innerText = "⌨"
         this.vkToggleButton.title = I.stream.virtualKeyboard
