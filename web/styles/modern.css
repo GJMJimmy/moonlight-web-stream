@@ -1522,6 +1522,7 @@ canvas.video-stream {
     opacity: var(--vk-opacity, 0.75);
     --vk-gap: 4px;
     --vk-unit: calc(min(calc((96vw - 32px) / 15.5), 52px) * var(--vk-scale, 1));
+    --vk-scale: 1;
 }
 
 .virtual-keyboard[hidden] {

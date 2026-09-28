@@ -28,6 +28,20 @@ pub mod user;
 
 pub mod response_streaming;
 
+/// The clipboard agent endpoints must never be reachable from outside the
+/// machine: they have no session auth (the agent is not a logged-in user),
+/// and a loopback check inside the app cannot distinguish local callers from
+/// requests forwarded by a reverse proxy/tunnel that terminates on localhost
+/// (frp does exactly that). Serving them on a dedicated loopback-only
+/// listener keeps them unreachable from the tunnel.
+pub fn clipboard_agent_service() -> impl HttpServiceFactory {
+    web::scope("/api").service(services![
+        // -- Clipboard agent
+        clipboard::agent_poll,
+        clipboard::agent_push
+    ])
+}
+
 pub fn api_service() -> impl HttpServiceFactory {
     web::scope("/api")
         .wrap(from_fn(auth_middleware))
@@ -36,11 +50,6 @@ pub fn api_service() -> impl HttpServiceFactory {
             auth::login,
             auth::logout,
             auth::authenticate
-        ])
-        .service(services![
-            // -- Clipboard agent (loopback only, enforced in the handlers)
-            clipboard::agent_poll,
-            clipboard::agent_push
         ])
         .service(services![
             // -- Host

@@ -16,3 +16,8 @@ web/api_bindings.ts
 server
 
 /.idea
+# local build stubs and test outputs (not part of the source tree)
+web/api_bindings.js
+web/api_bindings.d.ts
+fmt-final.txt
+final-verify.txt

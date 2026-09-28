@@ -31,6 +31,7 @@ use tracing::{error, info, trace};
 use crate::{
     api::api_service,
     api::clipboard::ClipboardState,
+    api::clipboard_agent_service,
     app::App,
     cli::{Cli, Command},
     human_json::preprocess_human_json,
@@ -283,6 +284,18 @@ async fn start(config: Config) -> Result<(), anyhow::Error> {
         }
     });
 
+    // Loopback-only listener for the clipboard agent - these endpoints have no
+    // session auth and must never be reachable through the public server
+    let agent_server = HttpServer::new({
+        let clipboard_state = clipboard_state.clone();
+        move || {
+            ActixApp::new()
+                .app_data(clipboard_state.clone())
+                .service(crate::api::clipboard_agent_service())
+        }
+    })
+    .bind(("127.0.0.1", 47999))?;
+
     if let Some(certificate) = app.config().web_server.certificate.as_ref() {
         info!("[Server]: Running Https Server with ssl tls");
 
@@ -295,9 +308,12 @@ async fn start(config: Config) -> Result<(), anyhow::Error> {
             .set_certificate_chain_file(&certificate.certificate_pem)
             .expect("failed to set certificate");
 
-        server.bind_openssl(bind_address, builder)?.run().await?;
+        futures::try_join!(
+            server.bind_openssl(bind_address, builder)?.run(),
+            agent_server.run()
+        )?;
     } else {
-        server.bind(bind_address)?.run().await?;
+        futures::try_join!(server.bind(bind_address)?.run(), agent_server.run())?;
     }
 
     Ok(())
