@@ -291,7 +291,7 @@ async fn start(config: Config) -> Result<(), anyhow::Error> {
         move || {
             ActixApp::new()
                 .app_data(clipboard_state.clone())
-                .service(crate::api::clipboard_agent_service())
+                .service(clipboard_agent_service())
         }
     })
     .bind(("127.0.0.1", 47999))?;
