@@ -47,6 +47,9 @@ const trueDefaultSettings: Settings =
     "pageStyle": "standard",
     "keyboardStyle": "labeled",
     "keyboardOpacity": 75,
+    "keyboardScale": 100,
+    "keyboardToggleX": -1,
+    "keyboardToggleY": -1,
     "hdr": false,
     "useSelectElementPolyfill": false
 }

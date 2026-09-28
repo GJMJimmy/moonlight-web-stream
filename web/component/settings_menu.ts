@@ -34,6 +34,9 @@ export type Settings = {
     pageStyle: PageStyle
     keyboardStyle: "labeled" | "blank"
     keyboardOpacity: number
+    keyboardScale: number
+    keyboardToggleX: number
+    keyboardToggleY: number
     hdr: boolean
     useSelectElementPolyfill: boolean
 }
@@ -599,6 +602,9 @@ export class StreamSettingsComponent implements Component {
         const stored = getLocalStreamSettings(settings)
         settings.keyboardStyle = stored.keyboardStyle
         settings.keyboardOpacity = stored.keyboardOpacity
+        settings.keyboardScale = stored.keyboardScale
+        settings.keyboardToggleX = stored.keyboardToggleX
+        settings.keyboardToggleY = stored.keyboardToggleY
 
         settings.hdr = this.hdr.isChecked()
 

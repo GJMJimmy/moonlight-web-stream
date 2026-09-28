@@ -12,7 +12,7 @@ import { DetailedRole, LogMessageType, StreamCapabilities, StreamKeys, StreamPer
 import { KeyboardModeEvent, KeyboardModeWillChangeEvent, ScreenKeyboard, TextEvent } from "./screen_keyboard.js";
 import { FormModal } from "./component/modal/form.js";
 import { ShortcutPanel } from "./component/shortcut_panel.js";
-import { VirtualKeyboard } from "./component/virtual_keyboard.js";
+import { VirtualKeyboard, makeDraggableToggle } from "./component/virtual_keyboard.js";
 import { ClipboardModal } from "./component/clipboard_modal.js";
 import { streamStatsToText } from "./stream/stats.js";
 import { adoptRoleDefaultLanguage, getCurrentLanguage, getTranslations } from "./i18n.js";
@@ -1160,20 +1160,35 @@ class ViewerSidebar implements Component, Sidebar {
         ;(this.keyboardScale as any).div.classList.add("vk-slider")
         this.wireKeyboardScalePreview()
 
-        // Floating toggle for the virtual keyboard
+        // Floating toggle for the virtual keyboard (draggable, tap toggles)
         this.vkToggleButton.innerText = "⌨"
         this.vkToggleButton.title = I.stream.virtualKeyboard
         this.vkToggleButton.ariaLabel = I.stream.virtualKeyboard
         this.vkToggleButton.classList.add("vk-floating-toggle")
-        this.vkToggleButton.addEventListener("click", event => {
-            event.preventDefault()
-            event.stopPropagation()
-            const shown = this.virtualKeyboard.toggle()
-            if (!shown) {
-                this.virtualKeyboard.releaseSticky()
-            }
-        })
         stopPropagationOn(this.vkToggleButton)
+
+        makeDraggableToggle(
+            this.vkToggleButton,
+            () => {
+                const shown = this.virtualKeyboard.toggle()
+                if (!shown) {
+                    this.virtualKeyboard.releaseSticky()
+                }
+            },
+            () => {
+                const settings = this.app.getLocalSettings()
+                if (settings.keyboardToggleX >= 0 && settings.keyboardToggleY >= 0) {
+                    return { x: settings.keyboardToggleX, y: settings.keyboardToggleY }
+                }
+                return null
+            },
+            position => {
+                const settings = this.app.getLocalSettings()
+                settings.keyboardToggleX = position.x
+                settings.keyboardToggleY = position.y
+                setLocalStreamSettings(settings)
+            }
+        )
 
         window.addEventListener("beforeunload", () => this.virtualKeyboard.releaseSticky())
     }

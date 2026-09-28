@@ -30,6 +30,7 @@ export const frFr: Translations = {
         keyboardLabeled: "Clavier Étiqueté",
         keyboardBlank: "Clavier Vierge",
         keyboardOpacity: "Opacité du Clavier",
+        keyboardScale: "Taille du Clavier",
         fullscreen: "Plein écran",
         stats: "Stats",
         exit: "Quitter",

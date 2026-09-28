@@ -30,6 +30,7 @@ export const zhCN: Translations = {
         keyboardLabeled: "正常电脑键盘",
         keyboardBlank: "无标识键盘",
         keyboardOpacity: "键盘透明度",
+        keyboardScale: "键盘大小",
         fullscreen: "全屏",
         stats: "统计",
         exit: "退出",

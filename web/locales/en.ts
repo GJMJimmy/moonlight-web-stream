@@ -28,6 +28,7 @@ export const en = {
         keyboardLabeled: "Labeled Keyboard",
         keyboardBlank: "Blank Keyboard",
         keyboardOpacity: "Keyboard Opacity",
+        keyboardScale: "Keyboard Size",
         fullscreen: "Fullscreen",
         stats: "Stats",
         exit: "Exit",

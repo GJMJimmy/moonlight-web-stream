@@ -30,6 +30,7 @@ export const koKR: Translations = {
         keyboardLabeled: "일반 키보드",
         keyboardBlank: "무표시 키보드",
         keyboardOpacity: "키보드 투명도",
+        keyboardScale: "키보드 크기",
         fullscreen: "전체 화면",
         stats: "통계",
         exit: "종료",

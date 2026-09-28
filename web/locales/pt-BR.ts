@@ -30,6 +30,7 @@ export const ptBR: Translations = {
         keyboardLabeled: "Teclado Rotulado",
         keyboardBlank: "Teclado em Branco",
         keyboardOpacity: "Opacidade do Teclado",
+        keyboardScale: "Tamanho do Teclado",
         fullscreen: "Tela Cheia",
         stats: "Estatísticas",
         exit: "Sair",

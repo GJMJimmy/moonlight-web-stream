@@ -135,7 +135,7 @@ export class VirtualKeyboard implements Component {
         this.root.style.setProperty("--vk-opacity", String(Math.max(0, Math.min(100, percent)) / 100))
     }
 
-    private build(container: HTMLElement, layout: KeyRow[]): void {
+    private build(container: HTMLElement, layout: (VirtualKeyDef | null)[][]): void {
         for (const row of layout) {
             const rowDiv = document.createElement("div")
             rowDiv.classList.add("vk-row")
