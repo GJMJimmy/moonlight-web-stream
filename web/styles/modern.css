@@ -1667,6 +1667,11 @@ canvas.video-stream {
     opacity: 1;
     transform: scale(0.95);
 }
+.vk-floating-toggle.vk-dragging {
+    will-change: transform;
+    transition: none !important;
+    opacity: 1;
+}
 
 .vk-floating-toggle {
     position: fixed;

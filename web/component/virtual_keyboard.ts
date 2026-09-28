@@ -354,6 +354,12 @@ export function makeDraggableToggle(
         const rect = button.getBoundingClientRect()
         originLeft = rect.left
         originTop = rect.top
+        // pin the layout position once - the drag itself only updates the
+        // compositor-friendly transform, left/top writes happen on release
+        button.style.left = originLeft + "px"
+        button.style.top = originTop + "px"
+        button.style.right = "auto"
+        button.classList.add("vk-dragging")
     }
 
     const move = (x: number, y: number) => {
@@ -369,7 +375,11 @@ export function makeDraggableToggle(
         }
 
         moved = true
-        applyPosition(originLeft + dx, originTop + dy)
+        const maxLeft = window.innerWidth - button.offsetWidth
+        const maxTop = window.innerHeight - button.offsetHeight
+        const left = clamp(originLeft + dx, maxLeft)
+        const top = clamp(originTop + dy, maxTop)
+        button.style.transform = `translate(${left - originLeft}px, ${top - originTop}px)`
     }
 
     const end = () => {
@@ -378,10 +388,16 @@ export function makeDraggableToggle(
         }
 
         active = false
+        button.classList.remove("vk-dragging")
+        button.style.transform = ""
 
         if (moved) {
             const rect = button.getBoundingClientRect()
-            onPositionChange({ x: Math.round(rect.left), y: Math.round(rect.top) })
+            const left = clamp(rect.left, window.innerWidth - button.offsetWidth)
+            const top = clamp(rect.top, window.innerHeight - button.offsetHeight)
+            button.style.left = left + "px"
+            button.style.top = top + "px"
+            onPositionChange({ x: Math.round(left), y: Math.round(top) })
         } else {
             onTap()
         }
