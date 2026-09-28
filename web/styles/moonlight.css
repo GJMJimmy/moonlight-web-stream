@@ -1246,6 +1246,7 @@ canvas.video-stream {
 }
 
 .vk-floating-toggle {
+    transition: none !important;
     position: fixed;
     top: calc(50% + 56px);
     right: 12px;
