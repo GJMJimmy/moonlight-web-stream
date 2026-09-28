@@ -331,6 +331,8 @@ export function makeDraggableToggle(
     let startY = 0
     let originLeft = 0
     let originTop = 0
+    let lastLeft = 0
+    let lastTop = 0
 
     const clamp = (value: number, max: number) => Math.max(0, Math.min(max, value))
 
@@ -377,9 +379,9 @@ export function makeDraggableToggle(
         moved = true
         const maxLeft = window.innerWidth - button.offsetWidth
         const maxTop = window.innerHeight - button.offsetHeight
-        const left = clamp(originLeft + dx, maxLeft)
-        const top = clamp(originTop + dy, maxTop)
-        button.style.transform = `translate(${left - originLeft}px, ${top - originTop}px)`
+        lastLeft = clamp(originLeft + dx, maxLeft)
+        lastTop = clamp(originTop + dy, maxTop)
+        button.style.transform = `translate(${lastLeft - originLeft}px, ${lastTop - originTop}px)`
     }
 
     const end = () => {
@@ -389,15 +391,15 @@ export function makeDraggableToggle(
 
         active = false
         button.classList.remove("vk-dragging")
-        button.style.transform = ""
 
         if (moved) {
-            const rect = button.getBoundingClientRect()
-            const left = clamp(rect.left, window.innerWidth - button.offsetWidth)
-            const top = clamp(rect.top, window.innerHeight - button.offsetHeight)
-            button.style.left = left + "px"
-            button.style.top = top + "px"
-            onPositionChange({ x: Math.round(left), y: Math.round(top) })
+            // write the final position first, then drop the transform -
+            // the other order would make the button jump back to the
+            // drag origin for a frame (visible as a twitch on release)
+            button.style.left = lastLeft + "px"
+            button.style.top = lastTop + "px"
+            button.style.transform = ""
+            onPositionChange({ x: Math.round(lastLeft), y: Math.round(lastTop) })
         } else {
             onTap()
         }
