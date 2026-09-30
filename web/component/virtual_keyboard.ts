@@ -1,6 +1,7 @@
 import { Component } from "./index.js"
 import { StreamKeyModifiers, StreamKeys } from "../api_bindings.js"
 import { StreamInput } from "../stream/input.js"
+import { AudioContextBasePipe } from "../stream/audio/audio_context_base.js"
 
 type VirtualKeyDef = {
     label: string
@@ -191,6 +192,10 @@ export class VirtualKeyboard implements Component {
     }
 
     private onKeyClick(def: VirtualKeyDef, button: HTMLButtonElement): void {
+        // any key press doubles as a user gesture: resume suspended audio
+        // contexts (the virtual keyboard swallows events before the stream
+        // handlers can do it themselves)
+        AudioContextBasePipe.resumeAllAudio()
         if (def.mod != null) {
             // Sym is a layer switch, not a held modifier
             if (def.label === "Sym") {

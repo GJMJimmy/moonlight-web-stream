@@ -14,6 +14,29 @@ export abstract class AudioContextBasePipe implements NodeAudioPlayer {
     private base: Pipe | null
     private audioContext: AudioContext | null = null
 
+    // registry of every live AudioContext this page created, for the
+    // global gesture-resume fallback and diagnostics
+    static readonly liveContexts = new Set<AudioContext>()
+
+    static diagnoseAudio(): { total: number, running: number, suspended: number, closed: number, interrupted: number } {
+        let running = 0, suspended = 0, closed = 0, interrupted = 0
+        for (const context of AudioContextBasePipe.liveContexts) {
+            if (context.state === "running") running++
+            else if (context.state === "suspended") suspended++
+            else if (context.state === "closed") closed++
+            else interrupted++
+        }
+        return { total: AudioContextBasePipe.liveContexts.size, running, suspended, closed, interrupted }
+    }
+
+    static resumeAllAudio(): void {
+        for (const context of AudioContextBasePipe.liveContexts) {
+            if (context.state === "suspended") {
+                context.resume().catch(() => { })
+            }
+        }
+    }
+
     constructor(implementationName: string, base: Pipe | null, logger?: Logger) {
         this.logger = logger ?? null
 
@@ -41,11 +64,14 @@ export abstract class AudioContextBasePipe implements NodeAudioPlayer {
             })
         }
 
+        AudioContextBasePipe.liveContexts.add(this.audioContext)
+
         if (this.base && "setup" in this.base && typeof this.base.setup == "function") {
             return this.base.setup(...arguments)
         }
     }
     cleanup(): void {
+        AudioContextBasePipe.liveContexts.delete(this.audioContext!)
         this.audioContext?.close()
     }
 

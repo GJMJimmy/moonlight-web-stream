@@ -10,6 +10,7 @@ import { ContextDestinationNodeAudioPlayer } from "./audio_context_destination.j
 import { AudioContextTrackPipe } from "./audio_context_track_pipe.js"
 import { DepacketizeAudioPipe } from "./depacketize_pipe.js"
 import { DataPipe } from "../pipeline/pipes.js"
+import { TrackSourcePipe } from "./track_source_pipe.js"
 
 const AUDIO_PLAYERS: Array<AudioPlayerStatic> = [
     AudioElementPlayer,
@@ -26,6 +27,10 @@ export type AudioPipelineOptions = {
 type Pipeline = { input: string, pipes: Array<PipeStatic>, player: AudioPlayerStatic }
 
 const PIPELINES: Array<Pipeline> = [
+    // webrtc mode: route the remote track through our own AudioContext (the
+    // gesture-driven resume fixes autoplay-blocked playout on insecure
+    // origins); falls back to the audio element when unsupported
+    { input: "audiotrack", pipes: [TrackSourcePipe], player: ContextDestinationNodeAudioPlayer },
     // Convert track -> audio_element, All Browsers
     { input: "audiotrack", pipes: [], player: AudioElementPlayer },
     // Convert data -> audio_sample -> track (MediaStreamTrackGenerator) -> audio_element, Chromium
