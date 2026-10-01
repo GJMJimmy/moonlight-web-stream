@@ -9,12 +9,14 @@ import { NodeAudioPlayer } from "./index.js";
 // insecure origins (LAN IP access) can keep that element silent forever,
 // while the gesture-driven resume on this AudioContext works everywhere.
 //
+// Two chromium quirks must be handled for a remote WebRTC track to be
+// audible through WebAudio:
+// 1. crbug.com/121673 - a MediaStreamSource stays silent unless the
+//    track also feeds a muted <audio> element (the "pump" below)
+// 2. the element-based playout would be blocked by autoplay policies on
+//    insecure origins, which is why the AudioContext route is used
 // The source is created when the track arrives via the transport's track
-// listener - the track is live at that point, which avoids the chromium bug
-// where a MediaStreamSource created before the track becomes active stays
-// silent (crbug.com/121673). The track is NOT attached to any audio element
-// at the same time: chromium routes silence into a MediaStreamSource while
-// the same track feeds a muted element.
+// listener - the track is live at that point.
 export class TrackSourcePipe extends AudioContextBasePipe implements NodeAudioPlayer {
 
     static async getInfo(): Promise<PipeInfo> {
@@ -34,12 +36,33 @@ export class TrackSourcePipe extends AudioContextBasePipe implements NodeAudioPl
         this.addPipePassthrough()
     }
 
+    private pump: HTMLAudioElement | null = null
+
     setTrack(track: MediaStreamTrack): void {
-        // 'as any': this tsc version mis-infers the getAudioContext() return
-        // type in this context; the runtime API is correct
         const ctx: any = this.getAudioContext()
+
+        // muted pump - keeps the track playout pipeline active so the
+        // MediaStreamSource actually receives data (crbug 121673 workaround)
+        this.detachPump()
+        this.pump = document.createElement("audio")
+        this.pump.muted = true
+        this.pump.autoplay = true
+        this.pump.srcObject = new MediaStream([track])
+        this.pump.style.display = "none"
+        document.body.appendChild(this.pump)
+        this.pump.play().catch(() => { })
+
         const trackSource = ctx.createMediaStreamSource(new MediaStream([track]))
         ;(this.getBase() as NodeAudioPlayer).setSource(trackSource)
+    }
+
+    detachPump(): void {
+        if (this.pump) {
+            this.pump.pause()
+            this.pump.srcObject = null
+            this.pump.remove()
+            this.pump = null
+        }
     }
 
     setSource(source: AudioNode): void {

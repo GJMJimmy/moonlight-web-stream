@@ -1178,6 +1178,7 @@ class ViewerSidebar implements Component, Sidebar {
         makeDraggableToggle(
             this.vkToggleButton,
             () => {
+                AudioContextBasePipe.resumeAllAudio()
                 const shown = this.virtualKeyboard.toggle()
                 if (!shown) {
                     this.virtualKeyboard.releaseSticky()
