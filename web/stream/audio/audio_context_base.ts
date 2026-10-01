@@ -64,8 +64,9 @@ export abstract class AudioContextBasePipe implements NodeAudioPlayer {
             })
         }
 
-        AudioContextBasePipe.liveContexts.add(this.audioContext)
-
+        if (this.audioContext) {
+            AudioContextBasePipe.liveContexts.add(this.audioContext)
+        }
         if (this.base && "setup" in this.base && typeof this.base.setup == "function") {
             return this.base.setup(...arguments)
         }
