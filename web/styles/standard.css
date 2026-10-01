@@ -1695,3 +1695,13 @@ canvas.video-stream {
     opacity: 1;
     transform: scale(0.95);
 }
+
+.vk-audio-state {
+    margin: 4px 0;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.vk-audio-blocked {
+    color: var(--warning, #fbbf24);
+}

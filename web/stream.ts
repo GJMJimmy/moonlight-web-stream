@@ -13,6 +13,7 @@ import { KeyboardModeEvent, KeyboardModeWillChangeEvent, ScreenKeyboard, TextEve
 import { FormModal } from "./component/modal/form.js";
 import { ShortcutPanel } from "./component/shortcut_panel.js";
 import { VirtualKeyboard, makeDraggableToggle } from "./component/virtual_keyboard.js";
+import { AudioContextBasePipe } from "./stream/audio/audio_context_base.js";
 import { ClipboardModal } from "./component/clipboard_modal.js";
 import { streamStatsToText } from "./stream/stats.js";
 import { adoptRoleDefaultLanguage, getCurrentLanguage, getTranslations } from "./i18n.js";
@@ -988,6 +989,7 @@ class ViewerSidebar implements Component, Sidebar {
     private keyboardStyle: SelectComponent
     private keyboardOpacity: InputComponent
     private keyboardScale: InputComponent
+    private audioStateElement: HTMLParagraphElement = document.createElement("p")
 
     constructor(app: ViewerApp) {
         this.app = app
@@ -1168,7 +1170,22 @@ class ViewerSidebar implements Component, Sidebar {
         this.virtualKeyboard.setOpacity(keyboardSettings.keyboardOpacity)
         this.virtualKeyboard.setScale(keyboardSettings.keyboardScale)
 
-        // Floating toggle for the virtual keyboard (draggable, tap toggles)
+        // Audio state line + global gesture fallback: ANY tap or key press
+        // resumes every suspended AudioContext. The virtual keyboard and the
+        // floating toggle stop their own events from propagating, so without
+        // this capture listener the gesture never reaches the resume chain.
+        this.audioStateElement = document.createElement("p")
+        this.audioStateElement.classList.add("vk-audio-state")
+        this.updateAudioStateElement()
+        this.div.prepend(this.audioStateElement)
+        const resumeOnGesture = () => {
+            AudioContextBasePipe.resumeAllAudio()
+            this.updateAudioStateElement()
+        }
+        document.addEventListener("pointerdown", resumeOnGesture, { capture: true })
+        document.addEventListener("keydown", resumeOnGesture, { capture: true })
+        document.addEventListener("touchstart", resumeOnGesture, { capture: true })
+        window.setInterval(() => this.updateAudioStateElement(), 1000)
         this.vkToggleButton.innerText = "⌨"
         this.vkToggleButton.title = I.stream.virtualKeyboard
         this.vkToggleButton.ariaLabel = I.stream.virtualKeyboard
@@ -1202,6 +1219,13 @@ class ViewerSidebar implements Component, Sidebar {
         window.addEventListener("beforeunload", () => this.virtualKeyboard.releaseSticky())
     }
 
+    updateAudioStateElement() {
+        const d = AudioContextBasePipe.diagnoseAudio()
+        if (this.audioStateElement) {
+            this.audioStateElement.innerText = "Audio: " + d.running + "/" + d.total + " running"
+            this.audioStateElement.classList.toggle("vk-audio-blocked", d.suspended > 0)
+        }
+    }
     onCapabilitiesChange(capabilities: StreamCapabilities) {
         this.touchMode.setOptionEnabled("touch", capabilities.touch)
     }
