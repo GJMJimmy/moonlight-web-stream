@@ -15,7 +15,8 @@ export async function tryDeleteRole(api: Api, id: number): Promise<boolean> {
     const i = getTranslations(getCurrentLanguage()).admin
     // Check if any user still has this role and show error if they do
     const usersResponse = await apiGetUsers(api)
-    const usersWithRole = usersResponse.users.filter(user => user.role_id == id)
+    const users: Array<{ role_id: number, name: string }> = usersResponse.users
+    const usersWithRole = users.filter(user => user.role_id == id)
     if (usersWithRole.length > 0) {
         await showMessage(i.roleDeleteBlocked(usersWithRole.map(user => user.name)))
         return false
