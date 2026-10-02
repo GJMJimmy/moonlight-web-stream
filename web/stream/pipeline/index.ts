@@ -1,5 +1,6 @@
 import { AudioBufferPipe } from "../audio/audio_buffer_pipe.js";
 import { AudioContextTrackPipe } from "../audio/audio_context_track_pipe.js";
+import { TrackSourcePipe } from "../audio/track_source_pipe.js";
 import { OpusAudioDecoderPipe } from "../audio/opus_decoder_pipe.js";
 import { AudioDecoderPipe } from "../audio/audio_decoder_pipe.js";
 import { DepacketizeAudioPipe } from "../audio/depacketize_pipe.js";
@@ -163,5 +164,6 @@ export function pipes(): Array<PipeStatic> {
         OpusAudioDecoderPipe,
         AudioBufferPipe,
         AudioContextTrackPipe,
+        TrackSourcePipe,
     ]
 }
